@@ -5,7 +5,7 @@ All components live in `src/components/ui/`. Each references colour roles only. 
 | Component | File | Variants / props | Use it for | Reference |
 |---|---|---|---|---|
 | `Button`, `ButtonLink`, `buttonClasses()` | `button.tsx` | `filled` `tonal` `outlined` `text` `success` `danger` · `sm` 32 / `md` 40 / `lg` 48 · `block`, leading/trailing icon | One filled button per view. `success` only for "Yes, water is flowing". `danger` only for destructive admin actions. | Material 3 |
-| `StatusPill` | `status-pill.tsx` | `status` (11 states) · `sm` / `md` | Fault status everywhere. Icon + label; open states tinted, closed states solid. | [Fresha](https://mobbin.com/screens/3b1a8630-7e3d-4e22-aa49-f38180943f60), [Relevance AI](https://mobbin.com/screens/c9df4ae4-6265-48ac-8e16-95220d542fce) |
+| `StatusPill` | `status-pill.tsx` | `status` (11 states) · `sm` / `md` | Fault status everywhere. Neutral pill with a coloured icon and label; only closed states are solid. | [Fresha](https://mobbin.com/screens/3b1a8630-7e3d-4e22-aa49-f38180943f60), [Relevance AI](https://mobbin.com/screens/c9df4ae4-6265-48ac-8e16-95220d542fce) |
 | `Chip` | `status-pill.tsx` | tone | Roles and non-status tags | n/a |
 | `CountBadge` | `status-pill.tsx` | count | Group headers, nav items, tabs | [Linear](https://mobbin.com/screens/610d34b6-6ad8-45ab-80fb-2107b31ed01e) |
 | `Card` | `card.tsx` | `outlined` `filled` `elevated` | Panels, list containers, previews | Material 3 |

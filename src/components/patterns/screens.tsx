@@ -19,9 +19,15 @@ import { Timeline } from "@/components/ui/timeline";
 /* Screen layer: compositions of components. Sample data only.         */
 /* ------------------------------------------------------------------ */
 
-export function FaultRow({ fault }: { fault: SampleFault }) {
+export function FaultRow({ fault, selected = false }: { fault: SampleFault; selected?: boolean }) {
   return (
-    <li className="state-layer flex items-start gap-3 px-4 py-3 text-on-surface sm:items-center">
+    <li
+      aria-current={selected || undefined}
+      className={cn(
+        "state-layer flex items-start gap-3 px-4 py-3 text-on-surface sm:items-center",
+        selected && "bg-surface-container-low shadow-[inset_2px_0_0_var(--md-primary)]",
+      )}
+    >
       <span className="w-12 shrink-0 pt-0.5 font-mono text-body-sm text-on-surface-variant sm:pt-0">{fault.id}</span>
       <div className="flex min-w-0 flex-1 flex-col gap-1 sm:gap-0">
         <span className="truncate text-body-md font-semibold">{fault.waterPoint}</span>
@@ -48,10 +54,19 @@ export function FaultRow({ fault }: { fault: SampleFault }) {
 }
 
 /** Programme officer's first screen: open faults grouped by who acts next (PRD §6 story 11, §14 risk 2). */
-export function OpenFaultsList({ className }: { className?: string }) {
-  return (
-    <Card className={cn("overflow-hidden", className)}>
-      <div className="flex items-center justify-between gap-3 border-b border-outline-variant px-4 py-3">
+export function OpenFaultsList({
+  className,
+  bare = false,
+  selectedId,
+}: {
+  className?: string;
+  /** Without the card shell, for embedding in an app window preview. */
+  bare?: boolean;
+  selectedId?: string;
+}) {
+  const body = (
+    <>
+      <div className="flex items-center justify-between gap-3 px-4 py-3.5">
         <div>
           <p className="text-title-md font-semibold text-on-surface">Open faults</p>
           <p className="text-body-sm text-on-surface-variant">{SAMPLE_FAULTS.length} open across 10 water points</p>
@@ -63,19 +78,21 @@ export function OpenFaultsList({ className }: { className?: string }) {
         if (!rows.length) return null;
         return (
           <section key={group}>
-            <h3 className="flex items-center gap-2 bg-surface-container-low px-4 py-2 text-label-lg font-semibold text-on-surface-variant">
+            <h3 className="flex items-center gap-2 border-y border-outline-variant/70 bg-surface-container-low/70 px-4 py-1.5 text-label-md font-semibold text-on-surface-variant">
               {WAITING_ON_LABEL[group]} <CountBadge count={rows.length} />
             </h3>
-            <ul className="divide-y divide-outline-variant">
+            <ul className="divide-y divide-outline-variant/70">
               {rows.map((f) => (
-                <FaultRow key={f.id} fault={f} />
+                <FaultRow key={f.id} fault={f} selected={f.id === selectedId} />
               ))}
             </ul>
           </section>
         );
       })}
-    </Card>
+    </>
   );
+  if (bare) return <div className={className}>{body}</div>;
+  return <Card className={cn("overflow-hidden", className)}>{body}</Card>;
 }
 
 /** Fault record (PRD §7 feature 5): stepper, timeline, named timestamps panel. */
@@ -234,17 +251,17 @@ export function TechnicianJobCard({ className }: { className?: string }) {
     <Card className={cn("flex flex-col gap-3 p-4", className)}>
       <div className="flex items-start justify-between gap-2">
         <div>
-          <StatusPill status="funding_disbursed" size="sm" />
-          <p className="mt-2 text-title-md font-semibold text-on-surface">WP-02 Solar borehole</p>
+          <StatusPill status="reported" size="sm" />
+          <p className="mt-2 text-title-md font-semibold text-on-surface">WP-09 Hand pump</p>
           <p className="flex items-center gap-1 text-body-sm text-on-surface-variant">
-            <MapPin aria-hidden className="size-3.5" /> Unguwan Dutse · open 9 days
+            <MapPin aria-hidden className="size-3.5" /> Gidan Kwano · no water · reported yesterday
           </p>
         </div>
         <button type="button" aria-label="Call custodian" className="state-layer flex size-10 items-center justify-center rounded-full border border-outline-variant text-primary">
           <Phone aria-hidden className="size-4" />
         </button>
       </div>
-      <Button size="lg" block>Record repair outcome</Button>
+      <Button size="lg" block>Record diagnosis</Button>
     </Card>
   );
 }
@@ -255,16 +272,16 @@ export function ApprovalPanel({ className }: { className?: string }) {
     <Card className={cn("flex flex-col", className)}>
       <div className="flex flex-col gap-1 border-b border-outline-variant p-5">
         <StatusPill status="estimate_submitted" size="sm" className="w-fit" />
-        <p className="mt-2 text-body-sm text-on-surface-variant">Estimate for F-029 · WP-02 Solar borehole</p>
-        <p className="text-display-sm font-semibold text-on-surface">₦184,000</p>
+        <p className="mt-2 text-body-sm text-on-surface-variant">Estimate for F-032 · WP-01 Hand pump</p>
+        <p className="text-display-sm font-semibold text-on-surface tabular-nums">₦62,500</p>
       </div>
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 p-5 text-body-md">
         <dt className="text-on-surface-variant">Diagnosis</dt>
-        <dd className="text-on-surface">Rising main cracked</dd>
+        <dd className="text-on-surface">Riser pipe joint failed</dd>
         <dt className="text-on-surface-variant">Parts</dt>
-        <dd className="text-on-surface">2 × 3 m galvanised pipe, couplings</dd>
+        <dd className="text-on-surface">1 × 3 m riser pipe, 2 couplings</dd>
         <dt className="text-on-surface-variant">Technician</dt>
-        <dd className="text-on-surface">Sani Danjuma · 6 Nov</dd>
+        <dd className="text-on-surface">Sani Danjuma · 14 Nov</dd>
       </dl>
       <div className="mx-5 mb-5 flex items-center gap-2 rounded-md bg-surface-container p-3 text-body-sm">
         <span className="font-medium text-on-surface">Technician submitted</span>

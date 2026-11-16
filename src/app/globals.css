@@ -63,26 +63,34 @@
   --color-inverse-primary: var(--md-inverse-primary);
 
   /* ---- Typography ---- */
-  --font-sans: var(--font-noto-sans), ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
-  --font-display: var(--font-noto-serif-display), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  /* Material 3 type scale. Name = role-size. */
+  /* Material 3 type scale. Name = role-size. Display and headline sizes use
+     tight negative tracking, which large sans-serif type needs to look crisp. */
+  --text-display-xl: 4.75rem;
+  --text-display-xl--line-height: 1.02;
+  --text-display-xl--letter-spacing: -0.045em;
   --text-display-lg: 3.5625rem;
-  --text-display-lg--line-height: 4rem;
-  --text-display-lg--letter-spacing: -0.016em;
+  --text-display-lg--line-height: 1.05;
+  --text-display-lg--letter-spacing: -0.04em;
   --text-display-md: 2.8125rem;
-  --text-display-md--line-height: 3.25rem;
-  --text-display-md--letter-spacing: -0.01em;
+  --text-display-md--line-height: 1.08;
+  --text-display-md--letter-spacing: -0.035em;
   --text-display-sm: 2.25rem;
-  --text-display-sm--line-height: 2.75rem;
+  --text-display-sm--line-height: 1.12;
+  --text-display-sm--letter-spacing: -0.03em;
 
   --text-headline-lg: 2rem;
   --text-headline-lg--line-height: 2.5rem;
+  --text-headline-lg--letter-spacing: -0.025em;
   --text-headline-md: 1.75rem;
   --text-headline-md--line-height: 2.25rem;
+  --text-headline-md--letter-spacing: -0.02em;
   --text-headline-sm: 1.5rem;
   --text-headline-sm--line-height: 2rem;
+  --text-headline-sm--letter-spacing: -0.015em;
 
   --text-title-lg: 1.375rem;
   --text-title-lg--line-height: 1.75rem;
@@ -115,12 +123,13 @@
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
-  --radius-xl: 28px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
 
   /* ---- Elevation. Tonal surfaces carry most depth; shadows are subtle. ---- */
-  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.08), 0 1px 3px 1px rgb(0 0 0 / 0.04);
-  --shadow-2: 0 1px 2px rgb(0 0 0 / 0.08), 0 2px 6px 2px rgb(0 0 0 / 0.05);
-  --shadow-3: 0 4px 8px 3px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.1);
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.05);
+  --shadow-2: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -10px rgb(0 0 0 / 0.12);
+  --shadow-3: 0 1px 3px rgb(0 0 0 / 0.05), 0 24px 64px -24px rgb(0 0 0 / 0.22);
 
   /* ---- Motion ---- */
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
@@ -140,7 +149,9 @@
     background: var(--md-surface);
     color: var(--md-on-surface);
     font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   ::selection {
     background: var(--md-primary-container);

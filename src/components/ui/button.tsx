@@ -11,19 +11,19 @@ const base =
   "aria-disabled:pointer-events-none aria-disabled:opacity-40";
 
 const variants: Record<ButtonVariant, string> = {
-  filled: "bg-primary text-on-primary hover:shadow-1",
-  tonal: "bg-primary-container text-on-primary-container",
-  outlined: "border border-outline text-primary bg-transparent",
-  text: "text-primary bg-transparent",
+  filled: "bg-primary text-on-primary shadow-1 hover:shadow-2",
+  tonal: "bg-surface-container-high text-on-surface",
+  outlined: "border border-outline-variant bg-surface-container-lowest text-on-surface shadow-1",
+  text: "bg-transparent text-on-surface",
   danger: "bg-error text-on-error hover:shadow-1",
   success: "bg-success text-on-success hover:shadow-1",
 };
 
 /** sm 32px, md 40px (desktop default), lg 48px (field default — meets the 48px touch target). */
 const sizes: Record<ButtonSize, string> = {
-  sm: "h-8 px-3 text-label-lg",
+  sm: "h-8 px-3.5 text-label-lg",
   md: "h-10 px-5 text-label-lg",
-  lg: "h-12 px-6 text-title-md",
+  lg: "h-12 px-6 text-body-lg",
 };
 
 export function buttonClasses({

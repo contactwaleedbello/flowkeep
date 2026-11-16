@@ -1,21 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Noto_Sans, Noto_Serif_Display } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
 /*
- * Noto Sans: covers Latin Extended, including Hausa (ɓ ɗ ƙ ƴ), Fulfulde and Yoruba diacritics.
- * Noto Serif Display: marketing headlines only.
+ * Inter (variable, with optical sizing): one family for product and marketing.
+ * latin-ext covers Hausa (ɓ ɗ ƙ ƴ), Fulfulde and Yoruba diacritics.
  */
-const notoSans = Noto_Sans({
-  variable: "--font-noto-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin", "latin-ext"],
-  display: "swap",
-});
-
-const notoSerifDisplay = Noto_Serif_Display({
-  variable: "--font-noto-serif-display",
-  subsets: ["latin", "latin-ext"],
-  weight: ["500", "600"],
+  axes: ["opsz"],
   display: "swap",
 });
 
@@ -40,7 +34,7 @@ const themeScript = `(function(){try{var t=localStorage.getItem('flowkeep-theme'
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${notoSans.variable} ${notoSerifDisplay.variable} h-full`}>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} h-full`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

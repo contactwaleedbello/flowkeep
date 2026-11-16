@@ -59,7 +59,7 @@ export default function DesignSystemPage() {
 
       <main className="mx-auto flex max-w-6xl flex-col gap-20 px-4 py-12 sm:px-6">
         <div className="flex max-w-3xl flex-col gap-4">
-          <h1 className="font-display text-display-sm font-semibold text-on-surface">Flowkeep design system</h1>
+          <h1 className="text-display-sm font-semibold text-on-surface">Flowkeep design system</h1>
           <p className="text-body-lg text-on-surface-variant">
             Built on the Flowkeep colour system (palettes → Material 3 roles) and the PRD. Organised in three layers that match the
             Mobbin research: <strong className="text-on-surface">app</strong> (shells and navigation),{" "}
@@ -165,7 +165,7 @@ function Swatches() {
 }
 
 const TYPE = [
-  ["text-display-sm font-display", "Display small · marketing headlines"],
+  ["text-display-md", "Display · marketing headlines"],
   ["text-headline-md", "Headline medium · page titles"],
   ["text-headline-sm", "Headline small · phone screen titles"],
   ["text-title-lg", "Title large · record titles"],
@@ -195,7 +195,7 @@ function Foundations() {
         </div>
       </div>
 
-      <Sub title="Type scale" note="Noto Sans for the product (covers Hausa ɓ ɗ ƙ ƴ). Noto Serif Display for marketing headlines only.">
+      <Sub title="Type scale" note="Inter for everything, with tight tracking at large sizes. Covers Hausa ɓ ɗ ƙ ƴ.">
         <Card className="divide-y divide-outline-variant">
           {TYPE.map(([cls, label]) => (
             <div key={label} className="flex flex-col gap-1 px-5 py-3 sm:flex-row sm:items-baseline sm:gap-6">
@@ -247,7 +247,7 @@ function StatusSection() {
     <Block
       id="status"
       title="Fault status"
-      intro="The 11 states from PRD §11. Each has an icon and a label, so status is never shown by colour alone. Open states are tinted; closed states are solid. The 'waiting on' column groups the officer's list."
+      intro="The 11 states from PRD §11. Each has an icon and a label, so status is never shown by colour alone. Pills stay neutral with a coloured icon; closed states are solid. The 'waiting on' column groups the officer's list."
     >
       <Card className="overflow-x-auto">
         <table className="w-full min-w-[640px] text-left text-body-md">

@@ -47,10 +47,10 @@ export function ChoiceList({
           <label
             key={c.value}
             className={cn(
-              "state-layer flex min-h-14 cursor-pointer items-center gap-3 rounded-md border px-4 py-3 transition-colors",
+              "state-layer flex min-h-14 cursor-pointer items-center gap-3 rounded-md border px-4 py-3 transition-[border-color,box-shadow]",
               "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-primary has-[:focus-visible]:outline-offset-2",
               active
-                ? "border-primary bg-primary-container text-on-primary-container"
+                ? "border-primary bg-surface-container-lowest text-on-surface ring-1 ring-primary"
                 : "border-outline-variant bg-surface-container-lowest text-on-surface",
             )}
           >
@@ -69,7 +69,7 @@ export function ChoiceList({
             <span className="flex flex-1 flex-col">
               <span className="text-body-lg font-medium">{c.label}</span>
               {c.description && (
-                <span className={cn("text-body-md", active ? "opacity-80" : "text-on-surface-variant")}>{c.description}</span>
+                <span className="text-body-md text-on-surface-variant">{c.description}</span>
               )}
             </span>
             <span

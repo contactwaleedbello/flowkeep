@@ -5,37 +5,34 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const NAV = [
   { href: "/#how", label: "How it works" },
-  { href: "/#roles", label: "Who it's for" },
-  { href: "/#pilot", label: "The pilot" },
+  { href: "/#product", label: "Product" },
+  { href: "/#pilot", label: "Pilot" },
   { href: "/#faq", label: "FAQ" },
 ];
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-outline-variant/70 bg-surface/90 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:gap-6 sm:px-6">
-        <Link href="/" aria-label="Flowkeep home" className="rounded-sm">
+    <header className="sticky top-0 z-40 border-b border-outline-variant/50 bg-surface/75 backdrop-blur-xl backdrop-saturate-150">
+      <div className="mx-auto grid h-16 max-w-6xl grid-cols-[1fr_auto] items-center gap-4 px-4 sm:px-6 md:grid-cols-[1fr_auto_1fr]">
+        <Link href="/" aria-label="Flowkeep home" className="w-fit rounded-sm">
           <Logo />
         </Link>
-        <nav aria-label="Main" className="hidden flex-1 items-center gap-1 md:flex">
+        <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
           {NAV.map((n) => (
-            <Link key={n.href} href={n.href} className="state-layer rounded-full px-3 py-2 text-label-lg text-on-surface-variant hover:text-on-surface">
+            <Link
+              key={n.href}
+              href={n.href}
+              className="rounded-full px-3 py-1.5 text-label-lg text-on-surface-variant transition-colors hover:text-on-surface"
+            >
               {n.label}
             </Link>
           ))}
         </nav>
-        <div className="ml-auto flex items-center gap-1">
+        <div className="flex items-center justify-end gap-1">
           <ThemeToggle />
-          <span className="hidden sm:block">
-            <ButtonLink href="/#apply" size="md">
-              Become a pilot partner
-            </ButtonLink>
-          </span>
-          <span className="sm:hidden">
-            <ButtonLink href="/#apply" size="sm">
-              Pilot with us
-            </ButtonLink>
-          </span>
+          <ButtonLink href="/#apply" size="sm">
+            Pilot with us
+          </ButtonLink>
         </div>
       </div>
     </header>
@@ -44,35 +41,18 @@ export function SiteHeader() {
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-outline-variant bg-surface-container-low">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 md:flex-row md:justify-between">
-        <div className="flex max-w-sm flex-col gap-3">
+    <footer className="border-t border-outline-variant/60">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="flex items-center gap-3">
           <Logo />
-          <p className="text-body-md text-on-surface-variant">
-            A maintenance record for community water points. From the first report to confirmed water flow.
-          </p>
+          <span className="text-body-sm text-on-surface-variant">© 2026 · Previews use sample data</span>
         </div>
-        <div className="grid grid-cols-2 gap-8 text-body-md sm:grid-cols-3">
-          <div className="flex flex-col gap-2">
-            <p className="text-label-lg font-semibold text-on-surface">Product</p>
-            <Link href="/#how" className="text-on-surface-variant hover:text-on-surface">How it works</Link>
-            <Link href="/#field" className="text-on-surface-variant hover:text-on-surface">Built for the field</Link>
-            <Link href="/#limits" className="text-on-surface-variant hover:text-on-surface">What it does not do</Link>
-          </div>
-          <div className="flex flex-col gap-2">
-            <p className="text-label-lg font-semibold text-on-surface">Pilot</p>
-            <Link href="/#pilot" className="text-on-surface-variant hover:text-on-surface">What a pilot involves</Link>
-            <Link href="/#faq" className="text-on-surface-variant hover:text-on-surface">FAQ</Link>
-            <Link href="/#apply" className="text-on-surface-variant hover:text-on-surface">Get in touch</Link>
-          </div>
-          <div className="flex flex-col gap-2">
-            <p className="text-label-lg font-semibold text-on-surface">Build</p>
-            <Link href="/design-system" className="text-on-surface-variant hover:text-on-surface">Design system</Link>
-          </div>
-        </div>
-      </div>
-      <div className="mx-auto max-w-6xl px-4 pb-8 text-body-sm text-on-surface-variant sm:px-6">
-        © 2026 Flowkeep. Product previews on this site use sample data.
+        <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-2 text-body-md text-on-surface-variant">
+          <Link href="/#how" className="hover:text-on-surface">How it works</Link>
+          <Link href="/#pilot" className="hover:text-on-surface">Pilot</Link>
+          <Link href="/#faq" className="hover:text-on-surface">FAQ</Link>
+          <Link href="/design-system" className="hover:text-on-surface">Design system</Link>
+        </nav>
       </div>
     </footer>
   );

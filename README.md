@@ -12,7 +12,7 @@ The app itself (offline PWA, Supabase, Dexie) is the next phase.
 
 ## Stack
 
-Next.js 16 (App Router) · React 19 · Tailwind CSS 4 · TypeScript · lucide-react icons · Noto Sans / Noto Serif Display through `next/font`. The PRD locks the stack in §2.
+Next.js 16 (App Router) · React 19 · Tailwind CSS 4 · TypeScript · lucide-react icons · Inter through `next/font`. The PRD locks the stack in §2.
 
 ## Run it
 

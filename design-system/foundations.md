@@ -39,16 +39,15 @@ To run it: `npm run audit:contrast` (script: [`scripts/contrast-audit.mjs`](../s
 
 | Family | Use |
 |---|---|
-| **Noto Sans** (`font-sans`) | All product UI. It covers Latin Extended, including Hausa ɓ ɗ ƙ ƴ, Fulfulde and Yoruba diacritics. |
-| **Noto Serif Display** (`font-display`) | Marketing headlines only |
+| **Inter** (variable, optical sizing) | Everything: product UI and marketing. `latin-ext` covers Hausa ɓ ɗ ƙ ƴ, Fulfulde and Yoruba diacritics. `font-display` points to the same family. |
 
-Both fonts are self-hosted through `next/font`, so the app never requests Google Fonts at runtime.
+The font is self-hosted through `next/font`, so the app never requests Google Fonts at runtime. Large sizes use tight negative tracking (from −0.015em at headline-sm to −0.045em at display-xl). That tracking is what makes big sans-serif type look crisp rather than loose.
 
 Type scale (Material 3), as Tailwind utilities `text-{role}-{size}`:
 
 | Token | Size / line height | Use |
 |---|---|---|
-| `display-lg / md / sm` | 57/64, 45/52, 36/44 | Marketing headlines |
+| `display-xl / lg / md / sm` | 76, 57, 45, 36 (line height 1.02 to 1.12) | Marketing headlines |
 | `headline-lg / md / sm` | 32/40, 28/36, 24/32 | Page titles; phone screen titles |
 | `title-lg / md / sm` | 22/28, 16/24, 14/20 | Record titles, card titles |
 | `body-lg / md / sm` | 16/24, 14/20, 12/16 | Phone body (16px minimum), desktop body, timestamps |
@@ -56,11 +55,18 @@ Type scale (Material 3), as Tailwind utilities `text-{role}-{size}`:
 
 ## Shape
 
-`rounded-xs` 4 · `sm` 8 (fields, toasts) · `md` 12 (choice rows, banners) · `lg` 16 (cards) · `xl` 28 (feature panels) · `full` (buttons, pills, tabs).
+`rounded-xs` 4 · `sm` 8 (toasts) · `md` 12 (fields, choice rows, banners) · `lg` 16 (cards) · `xl` 20 (bento tiles, app window) · `2xl` 28 · `full` (buttons, pills, tabs).
 
 ## Elevation
 
-Depth comes mostly from tonal surfaces (`surface-container-lowest` → `highest`). Shadows (`shadow-1/2/3`) are only for floating things: hover on filled buttons, elevated previews, toasts.
+Depth comes mostly from tonal surfaces (`surface-container-lowest` → `highest`) and hairline borders (`outline-variant` at reduced opacity). Shadows are soft and wide: `shadow-1` is a 1px lift for buttons and fields, `shadow-2` is for floating cards, and `shadow-3` is for the hero window and toasts.
+
+## Visual style
+
+The aim is modern, clean and minimal:
+- Colour lives in icons, the primary button and small accents. Large areas stay neutral.
+- Status pills are neutral with a coloured icon. Only closed states are solid.
+- Use generous whitespace, with sections at 96 to 128px vertical padding, and fewer boxes. Separate content with hairlines and spacing before adding borders.
 
 ## Spacing and touch
 

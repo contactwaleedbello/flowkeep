@@ -5,9 +5,9 @@ import { useId, type ComponentProps, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 const fieldBase =
-  "w-full rounded-sm border bg-surface-container-lowest px-3.5 text-body-lg text-on-surface " +
-  "placeholder:text-on-surface-variant/70 transition-colors outline-none " +
-  "focus:border-primary focus:ring-2 focus:ring-primary/25 disabled:opacity-50";
+  "w-full rounded-md border bg-surface-container-lowest px-3.5 text-body-lg text-on-surface shadow-1 " +
+  "placeholder:text-on-surface-variant/60 transition-[border-color,box-shadow] outline-none " +
+  "hover:border-outline focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:opacity-50";
 
 function FieldShell({
   id,
@@ -56,7 +56,7 @@ export function TextField({ label, helper, error, optional, className, id, ...pr
         id={fid}
         aria-invalid={!!error || undefined}
         aria-describedby={helper || error ? `${fid}-msg` : undefined}
-        className={cn(fieldBase, "h-12", error ? "border-error" : "border-outline", className)}
+        className={cn(fieldBase, "h-11", error ? "border-error" : "border-outline-variant", className)}
         {...props}
       />
     </FieldShell>
@@ -72,7 +72,7 @@ export function TextArea({ label, helper, error, optional, className, id, ...pro
         id={fid}
         aria-invalid={!!error || undefined}
         aria-describedby={helper || error ? `${fid}-msg` : undefined}
-        className={cn(fieldBase, "min-h-28 py-3", error ? "border-error" : "border-outline", className)}
+        className={cn(fieldBase, "min-h-28 py-3", error ? "border-error" : "border-outline-variant", className)}
         {...props}
       />
     </FieldShell>
@@ -97,7 +97,7 @@ export function SelectField({
         <select
           id={fid}
           aria-invalid={!!error || undefined}
-          className={cn(fieldBase, "h-12 appearance-none pr-10", error ? "border-error" : "border-outline", className)}
+          className={cn(fieldBase, "h-11 appearance-none pr-10", error ? "border-error" : "border-outline-variant", className)}
           {...props}
         >
           {children}

@@ -2,23 +2,23 @@ import { FAULT_STATUS, type FaultStatus, type StatusTone } from "@/lib/fault-sta
 import { cn } from "@/lib/cn";
 import { STATUS_ICONS } from "./icons";
 
-/** Open states: tinted container. Closed states: solid fill (Fresha pattern, see design-system/patterns.md). */
-const tinted: Record<StatusTone, string> = {
-  primary: "bg-primary-container text-on-primary-container",
-  attention: "bg-secondary-container text-on-secondary-container",
-  tertiary: "bg-tertiary-container text-on-tertiary-container",
-  neutral: "bg-surface-container-highest text-on-surface",
-  success: "bg-success-container text-on-success-container",
-  error: "bg-error-container text-on-error-container",
+/**
+ * Status pill. Quiet by default: neutral surface, hairline border, colour only on the icon.
+ * Closed states (service verified, abandoned) are solid, so finished work reads as finished.
+ * Icon + label always, so status is never colour-only.
+ */
+const iconTone: Record<StatusTone, string> = {
+  primary: "text-primary",
+  attention: "text-secondary",
+  tertiary: "text-tertiary",
+  neutral: "text-on-surface-variant",
+  success: "text-success",
+  error: "text-error",
 };
 
-const solid: Record<StatusTone, string> = {
-  primary: "bg-primary text-on-primary",
-  attention: "bg-secondary text-on-secondary",
-  tertiary: "bg-tertiary text-on-tertiary",
-  neutral: "bg-inverse-surface text-inverse-on-surface",
-  success: "bg-success text-on-success",
-  error: "bg-error text-on-error",
+const solid: Partial<Record<StatusTone, string>> = {
+  success: "border-transparent bg-success text-on-success",
+  error: "border-transparent bg-inverse-surface text-inverse-on-surface",
 };
 
 export function StatusPill({
@@ -32,23 +32,37 @@ export function StatusPill({
 }) {
   const def = FAULT_STATUS[status];
   const Icon = STATUS_ICONS[def.icon];
+  const closed = def.closed ? solid[def.tone] : undefined;
   return (
     <span
       title={def.description}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full font-medium whitespace-nowrap",
+        "inline-flex items-center gap-1.5 rounded-full border font-medium whitespace-nowrap",
         size === "sm" ? "h-6 px-2 text-label-md" : "h-7 px-2.5 text-label-lg",
-        def.closed ? solid[def.tone] : tinted[def.tone],
+        closed ?? "border-outline-variant bg-surface-container-lowest text-on-surface",
         className,
       )}
     >
-      <Icon aria-hidden className={size === "sm" ? "size-3.5" : "size-4"} strokeWidth={2.25} />
+      <Icon
+        aria-hidden
+        className={cn(size === "sm" ? "size-3.5" : "size-4", closed ? "text-current" : iconTone[def.tone])}
+        strokeWidth={2.25}
+      />
       {def.label}
     </span>
   );
 }
 
-/** Generic tone chip for non-status labels (roles, counts, tags). */
+const chipTone: Record<StatusTone, string> = {
+  neutral: "bg-surface-container text-on-surface-variant",
+  primary: "bg-surface-container text-primary",
+  attention: "bg-secondary-container text-on-secondary-container",
+  tertiary: "bg-surface-container text-tertiary",
+  success: "bg-surface-container text-success",
+  error: "bg-error-container text-on-error-container",
+};
+
+/** Small label for roles and tags. Neutral unless it carries a warning. */
 export function Chip({
   tone = "neutral",
   children,
@@ -59,13 +73,7 @@ export function Chip({
   className?: string;
 }) {
   return (
-    <span
-      className={cn(
-        "inline-flex h-6 items-center gap-1 rounded-sm px-2 text-label-md font-medium",
-        tinted[tone],
-        className,
-      )}
-    >
+    <span className={cn("inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-label-md font-medium", chipTone[tone], className)}>
       {children}
     </span>
   );
@@ -75,7 +83,7 @@ export function CountBadge({ count, className }: { count: number; className?: st
   return (
     <span
       className={cn(
-        "inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-surface-container-highest px-1.5 text-label-sm font-semibold text-on-surface-variant",
+        "inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-surface-container-high px-1.5 text-label-sm font-semibold text-on-surface-variant tabular-nums",
         className,
       )}
     >

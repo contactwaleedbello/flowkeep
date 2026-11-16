@@ -35,7 +35,7 @@ export function SyncBar({
       text: `${pending} ${pending === 1 ? "record" : "records"} waiting to sync`,
       cls: "bg-surface-container-high text-on-surface",
     },
-    syncing: { icon: RefreshCw, text: "Syncing…", cls: "bg-primary-container text-on-primary-container" },
+    syncing: { icon: RefreshCw, text: "Syncing…", cls: "bg-surface-container-high text-on-surface" },
     synced: { icon: CircleCheck, text: "All records synced", cls: "bg-surface-container text-on-surface-variant" },
     stale: {
       icon: CloudOff,
@@ -98,10 +98,10 @@ export function Banner({
   className?: string;
 }) {
   const tones = {
-    info: "bg-primary-container/40 text-on-surface border-primary/30",
+    info: "bg-surface-container-low text-on-surface border-outline-variant",
     attention: "bg-secondary-container text-on-secondary-container border-transparent",
     error: "bg-error-container text-on-error-container border-transparent",
-    success: "bg-success-container/50 text-on-surface border-success/30",
+    success: "bg-surface-container-low text-on-surface border-outline-variant",
   };
   return (
     <div role="note" className={cn("flex gap-3 rounded-md border p-4", tones[tone], className)}>

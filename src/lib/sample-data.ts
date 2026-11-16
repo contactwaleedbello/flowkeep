@@ -19,11 +19,11 @@ export interface SampleFault {
 
 export const SAMPLE_FAULTS: SampleFault[] = [
   { id: "F-031", waterPoint: "WP-07 Hand pump", community: "Kofar Arewa", faultType: "No water", status: "funding_rejected", daysInState: 3, assignee: "You", synced: true },
-  { id: "F-029", waterPoint: "WP-02 Solar borehole", community: "Unguwan Dutse", faultType: "Low flow", status: "estimate_submitted", daysInState: 5, assignee: "H. Bello", synced: true },
+  { id: "F-032", waterPoint: "WP-01 Hand pump", community: "Kofar Gabas", faultType: "Leaking pipe", status: "estimate_submitted", daysInState: 2, assignee: "H. Bello", synced: true },
   { id: "F-030", waterPoint: "WP-05 Hand pump", community: "Tudun Wada", faultType: "Broken handle", status: "funding_approved", daysInState: 2, assignee: "H. Bello", synced: true },
   { id: "F-033", waterPoint: "WP-09 Hand pump", community: "Gidan Kwano", faultType: "No water", status: "reported", daysInState: 1, assignee: "S. Danjuma", synced: false },
   { id: "F-027", waterPoint: "WP-04 Solar borehole", community: "Sabon Layi", faultType: "Pump not starting", status: "awaiting_parts", daysInState: 9, assignee: "S. Danjuma", synced: true },
-  { id: "F-032", waterPoint: "WP-01 Hand pump", community: "Kofar Gabas", faultType: "Leaking pipe", status: "repair_reported_complete", daysInState: 1, assignee: "A. Musa", synced: true },
+  { id: "F-029", waterPoint: "WP-02 Solar borehole", community: "Unguwan Dutse", faultType: "No water", status: "repair_reported_complete", daysInState: 1, assignee: "A. Yusuf", synced: false },
 ];
 
 export const SAMPLE_TIMELINE: TimelineEvent[] = [

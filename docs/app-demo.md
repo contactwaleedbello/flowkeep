@@ -1,6 +1,6 @@
 # Flowkeep app: front-end demo
 
-A clickable front end for every role in the PRD. **There is no backend.** Data is sample data, held in React state and saved to the browser's `localStorage` (key `flowkeep-demo-v1`). Each browser has its own copy. Use **Reset** in the demo bar to restore the seed.
+A clickable front end for every role in the PRD. **There is no backend.** Data is sample data, held in React state and saved to the browser's `localStorage` (key `flowkeep-demo-v2`). Each browser has its own copy. Use **Reset** in the demo bar to restore the seed.
 
 Open it at **`/app`** and choose a role.
 

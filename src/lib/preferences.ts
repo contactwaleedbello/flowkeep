@@ -3,21 +3,23 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * Device preferences: theme, text size, motion. Stored per device in localStorage,
+ * Device preferences: theme, text size, motion, sidebar width. Stored per device in localStorage,
  * applied to <html> before first paint by the script in app/layout.tsx.
  */
 
 export type ThemePref = "light" | "dark" | "system";
 export type TextPref = "default" | "large";
 export type MotionPref = "system" | "reduce";
+export type SidebarPref = "expanded" | "collapsed";
 
 export interface Prefs {
   theme: ThemePref;
   text: TextPref;
   motion: MotionPref;
+  sidebar: SidebarPref;
 }
 
-const DEFAULTS: Prefs = { theme: "system", text: "default", motion: "system" };
+const DEFAULTS: Prefs = { theme: "system", text: "default", motion: "system", sidebar: "expanded" };
 const listeners = new Set<() => void>();
 let cache: Prefs | null = null;
 
@@ -28,6 +30,7 @@ function read(): Prefs {
       theme: (localStorage.getItem("flowkeep-theme") as ThemePref) || "system",
       text: (localStorage.getItem("flowkeep-text") as TextPref) || "default",
       motion: (localStorage.getItem("flowkeep-motion") as MotionPref) || "system",
+      sidebar: (localStorage.getItem("flowkeep-sidebar") as SidebarPref) || "expanded",
     };
   } catch {
     cache = DEFAULTS;
@@ -42,6 +45,8 @@ function apply(p: Prefs) {
   d.style.fontSize = p.text === "large" ? "112.5%" : "";
   if (p.motion === "reduce") d.dataset.motion = "reduce";
   else delete d.dataset.motion;
+  if (p.sidebar === "collapsed") d.dataset.sidebar = "collapsed";
+  else delete d.dataset.sidebar;
 }
 
 export function setPref<K extends keyof Prefs>(key: K, value: Prefs[K]) {

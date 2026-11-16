@@ -49,7 +49,7 @@ export const viewport: Viewport = {
  * Applies device preferences before first paint, so there is no flash
  * (see Next docs: preventing-flash-before-hydration). Mirrors src/lib/preferences.ts.
  */
-const themeScript = `(function(){try{var d=document.documentElement,t=localStorage.getItem('flowkeep-theme')||'system';var dark=t==='dark'||(t==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);d.classList.toggle('dark',dark);if(localStorage.getItem('flowkeep-text')==='large')d.style.fontSize='112.5%';if(localStorage.getItem('flowkeep-motion')==='reduce')d.dataset.motion='reduce'}catch(e){}})()`;
+const themeScript = `(function(){try{var d=document.documentElement,t=localStorage.getItem('flowkeep-theme')||'system';var dark=t==='dark'||(t==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);d.classList.toggle('dark',dark);if(localStorage.getItem('flowkeep-text')==='large')d.style.fontSize='112.5%';if(localStorage.getItem('flowkeep-motion')==='reduce')d.dataset.motion='reduce';if(localStorage.getItem('flowkeep-sidebar')==='collapsed')d.dataset.sidebar='collapsed'}catch(e){}})()`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

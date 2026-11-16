@@ -26,7 +26,13 @@ Source of truth: [`src/lib/fault-status.ts`](../src/lib/fault-status.ts). It fol
 
 ### Desktop shell
 Programme officer, approver and admin.
-- A sidebar with section counts (Open faults, Water points, Estimates, Exports, Admin). The active item uses `primary-container`. Basis: [Deel](https://mobbin.com/screens/ebede796-0ca0-408a-bf05-630420732e1f).
+- **Sidebar** (`DesktopShell`, `src/components/app/chrome.tsx`), one component at three widths:
+  - **Large screens (1024px and up):** full 240px sidebar, or a 60px icon rail. The person chooses with the Collapse button or the `[` key. The choice is saved per device (`flowkeep-sidebar`) and applied before first paint.
+  - **Tablet (768–1023px):** always the icon rail.
+  - **Phone:** a menu button in the header opens a drawer from the left with the same links. The header shows the current page name.
+  - **Items:** icon, label and count. The active item has a neutral fill, a primary icon and a 2px primary bar on the left edge. Settings is pinned to the bottom, and the person sits in the footer.
+  - **In the rail:** each label becomes a tooltip on hover and keyboard focus, so links keep their accessible names. The `rail:` Tailwind variant in `globals.css` drives this and is scoped to `.fk-aside`, so the drawer never collapses.
+  - Basis: [Deel](https://mobbin.com/screens/ebede796-0ca0-408a-bf05-630420732e1f), with the Linear collapse pattern.
 - A `SyncBar` above the content. On desktop it usually reads "All records synced".
 - **The first screen after login is the role's queue** (PRD §14 risk 2): open faults for officers, To decide for approvers.
 - The record opens as a split view beside the list ([Wrike](https://mobbin.com/screens/20ad47f6-2249-48aa-a3c2-e8fb4503b4b0)) on wide screens, and as its own page on narrow ones.

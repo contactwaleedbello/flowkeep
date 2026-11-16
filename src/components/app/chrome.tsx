@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowLeft,
   ChevronsUpDown,
@@ -17,17 +17,20 @@ import {
   History,
   Settings,
   LayoutGrid,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
   Users,
   Wrench,
   X,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { setPref, usePrefs } from "@/lib/preferences";
 import { daysSince, fmtDateTime, pendingSync, userById } from "@/lib/demo/logic";
 import { PERSONA, useDemo } from "@/lib/demo/store";
 import { Toast } from "@/components/ui/feedback";
 import { LogoMark } from "@/components/ui/logo";
-import { CountBadge } from "@/components/ui/status-pill";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ROLE_LABEL } from "./fault-bits";
 
@@ -182,12 +185,65 @@ export function ToastHost() {
 
 type NavItem = { href: string; label: string; icon: LucideIcon; count?: number };
 
+function isActive(path: string, href: string) {
+  if (href === "/app/officer") return path === href || path.startsWith("/app/faults");
+  if (href === "/app/admin") return path === href;
+  return path === href || path.startsWith(href + "/");
+}
+
+/**
+ * One navigation link, shared by the sidebar and the phone drawer. In the icon rail the
+ * label becomes a tooltip to the right of the icon (shown on hover and keyboard focus),
+ * so the link keeps its accessible name.
+ */
+function NavLink({ item, active, onNavigate }: { item: NavItem; active: boolean; onNavigate?: () => void }) {
+  const { href, label, icon: Icon, count } = item;
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "group relative flex h-9 items-center gap-3 rounded-md px-2.5 text-label-lg transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        "rail:w-9 rail:justify-center rail:gap-0 rail:px-0",
+        active
+          ? "bg-surface-container-high font-medium text-on-surface dark:bg-surface-container-highest"
+          : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface",
+      )}
+    >
+      {active && <span aria-hidden className="absolute top-2 bottom-2 -left-2 w-0.5 rounded-full bg-primary rail:-left-[10px]" />}
+      <Icon aria-hidden className={cn("size-[18px] shrink-0", active ? "text-primary" : "opacity-80")} />
+      <span
+        className={cn(
+          "flex-1 truncate",
+          "rail:pointer-events-none rail:absolute rail:left-full rail:z-50 rail:ml-3 rail:flex-none rail:rounded-md rail:bg-inverse-surface rail:px-2 rail:py-1 rail:text-label-md rail:font-medium rail:whitespace-nowrap rail:text-inverse-on-surface rail:opacity-0 rail:shadow-2 rail:transition-opacity",
+          "rail:group-hover:opacity-100 rail:group-focus-visible:opacity-100",
+        )}
+      >
+        {label}
+        {count !== undefined && <span className="hidden rail:inline"> · {count}</span>}
+      </span>
+      {count !== undefined && <span className="num text-[12px] text-on-surface-variant rail:hidden">{count}</span>}
+    </Link>
+  );
+}
+
+function Avatar({ name }: { name?: string }) {
+  return (
+    <span aria-hidden className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-container text-[11px] font-semibold text-on-primary-container">
+      {name?.split(" ").map((p) => p[0]).join("")}
+    </span>
+  );
+}
+
 export function DesktopShell({ role, children }: { role: "officer" | "approver" | "admin"; children: ReactNode }) {
   const { state } = useDemo();
   const path = usePathname();
+  const { sidebar } = usePrefs();
+  const [drawer, setDrawer] = useState(false);
   const me = userById(state, PERSONA[role]);
   const open = state.faults.filter((f) => !["service_verified", "abandoned"].includes(f.status));
-  const nav: NavItem[] =
+  const main: NavItem[] =
     role === "officer"
       ? [
           { href: "/app/officer", label: "Open faults", icon: Inbox, count: open.length },
@@ -201,74 +257,148 @@ export function DesktopShell({ role, children }: { role: "officer" | "approver" 
             { href: "/app/admin/water-points", label: "Water points", icon: Droplet, count: state.waterPoints.filter((w) => !w.archived).length },
             { href: "/app/admin/people", label: "People", icon: Users, count: state.users.filter((u) => u.status !== "deactivated").length },
             { href: "/app/admin/activity", label: "Activity", icon: History },
-            { href: "/app/admin/settings", label: "Settings", icon: Settings },
           ];
+  const bottom: NavItem[] = role === "admin" ? [{ href: "/app/admin/settings", label: "Settings", icon: Settings }] : [];
+  const current = [...main, ...bottom].find((i) => isActive(path, i.href));
+  const collapsed = sidebar === "collapsed";
+  const toggle = () => setPref("sidebar", collapsed ? "expanded" : "collapsed");
+
+  // "[" toggles the sidebar on large screens (Linear, Notion), unless typing.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement;
+      if (e.key !== "[" || e.metaKey || e.ctrlKey || e.altKey || t.closest("input, textarea, select, [contenteditable]")) return;
+      if (!matchMedia("(width >= 64rem)").matches) return;
+      setPref("sidebar", document.documentElement.dataset.sidebar === "collapsed" ? "expanded" : "collapsed");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const brand = (
+    <>
+      <LogoMark className="size-6 shrink-0" />
+      <div className="min-w-0 flex-1 rail:hidden">
+        <p className="truncate text-label-lg font-semibold text-on-surface">Flowkeep</p>
+        <p className="truncate text-[11px] leading-tight text-on-surface-variant">{state.organisation.name}</p>
+      </div>
+    </>
+  );
+  const person = (
+    <div className="flex items-center gap-2.5 rail:justify-center">
+      <Avatar name={me?.name} />
+      <div className="min-w-0 rail:hidden">
+        <p className="truncate text-label-lg font-medium text-on-surface">{me?.name}</p>
+        <p className="truncate text-[11px] leading-tight text-on-surface-variant">{ROLE_LABEL[me?.role ?? ""]}</p>
+      </div>
+    </div>
+  );
+  const links = (items: NavItem[], onNavigate?: () => void) =>
+    items.map((item) => <NavLink key={item.href} item={item} active={isActive(path, item.href)} onNavigate={onNavigate} />);
 
   return (
     <div className="flex min-h-screen flex-col">
       <DemoDock role={role} />
       <div className="flex flex-1">
-        <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-outline-variant/80 bg-surface-container-low/60 md:flex dark:bg-surface-container-low">
-          <div className="flex h-14 items-center gap-2.5 border-b border-outline-variant/60 px-4">
-            <LogoMark className="size-6" />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-label-lg font-semibold text-on-surface">Flowkeep</p>
-              <p className="truncate text-[11px] leading-tight text-on-surface-variant">{state.organisation.name}</p>
-            </div>
+        {/* Sidebar: md and up. Icon rail on tablets; full or rail (person's choice) on large screens. */}
+        <aside
+          aria-label="Sidebar"
+          className="fk-aside sticky top-0 z-40 hidden h-screen w-60 shrink-0 flex-col border-r border-outline-variant/70 bg-surface-container-low transition-[width] duration-200 ease-[var(--ease-emphasized)] md:flex rail:w-[60px]"
+        >
+          <div className="flex h-14 items-center gap-2.5 px-4 rail:justify-center rail:px-0">
+            {brand}
           </div>
-          <nav aria-label="Main" className="flex flex-col gap-0.5 p-2">
-            {nav.map(({ href, label, icon: Icon, count }) => {
-              const exact = href === "/app/officer" || href === "/app/admin";
-              const active = path === href || (!exact && path.startsWith(href)) || (href === "/app/officer" && path.startsWith("/app/faults"));
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "flex h-8 items-center gap-2.5 rounded-md px-2.5 text-label-lg transition-colors",
-                    active ? "bg-surface-container-lowest font-medium text-on-surface shadow-1 ring-1 ring-outline-variant/70 dark:bg-surface-container-high" : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface",
-                  )}
-                >
-                  <Icon aria-hidden className="size-4 opacity-80" />
-                  <span className="flex-1">{label}</span>
-                  {count !== undefined && <CountBadge count={count} className="bg-transparent" />}
-                </Link>
-              );
-            })}
+          <nav aria-label="Main" className="flex flex-1 flex-col gap-0.5 px-3 pt-2 rail:items-center rail:px-0">
+            {links(main)}
+            {bottom.length > 0 && <div className="mt-auto flex flex-col gap-0.5 rail:items-center">{links(bottom)}</div>}
           </nav>
-          <div className="mt-auto flex items-center gap-2.5 border-t border-outline-variant/60 p-3">
-            <span className="flex size-7 items-center justify-center rounded-full bg-surface-container-highest text-[11px] font-semibold text-on-surface">
-              {me?.name.split(" ").map((p) => p[0]).join("")}
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-label-lg font-medium text-on-surface">{me?.name}</p>
-              <p className="truncate text-[11px] leading-tight text-on-surface-variant">{ROLE_LABEL[me?.role ?? ""]}</p>
-            </div>
+          <div className="flex flex-col gap-2 border-t border-outline-variant/60 p-3 rail:items-center rail:px-0">
+            {person}
+            <button
+              type="button"
+              onClick={toggle}
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-expanded={!collapsed}
+              title={`${collapsed ? "Expand" : "Collapse"} sidebar  [`}
+              className="state-layer hidden h-8 items-center gap-2 rounded-md px-2 text-label-md text-on-surface-variant lg:flex rail:w-9 rail:justify-center rail:px-0"
+            >
+              {collapsed ? <PanelLeftOpen aria-hidden className="size-4" /> : <PanelLeftClose aria-hidden className="size-4" />}
+              <span className="flex-1 text-left rail:hidden">Collapse</span>
+              <kbd className="rounded-xs border border-outline-variant px-1 font-mono text-[10px] rail:hidden">[</kbd>
+            </button>
           </div>
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-outline-variant/60 bg-surface/85 px-4 backdrop-blur-xl sm:px-8">
-            <Link href="/app" className="md:hidden" aria-label="All roles">
-              <LogoMark className="size-6" />
-            </Link>
-            <nav className="flex min-w-0 flex-1 gap-1 overflow-x-auto md:hidden">
-              {nav.map(({ href, label }) => (
-                <Link key={href} href={href} className={cn("rounded-md px-2.5 py-1 text-label-lg whitespace-nowrap", path.startsWith(href) ? "bg-surface-container-high text-on-surface" : "text-on-surface-variant")}>
-                  {label}
-                </Link>
-              ))}
-            </nav>
-            <div className="ml-auto">
+          <header className="sticky top-10 z-30 flex h-14 items-center gap-2 border-b border-outline-variant/60 bg-surface/85 px-2 backdrop-blur-xl sm:top-0 sm:px-8 md:gap-3">
+            <button
+              type="button"
+              onClick={() => setDrawer(true)}
+              aria-label="Open menu"
+              aria-haspopup="dialog"
+              className="state-layer flex size-10 items-center justify-center rounded-md text-on-surface md:hidden"
+            >
+              <Menu aria-hidden className="size-5" />
+            </button>
+            <p className="min-w-0 truncate text-title-sm font-semibold text-on-surface md:hidden">{current?.label ?? "Flowkeep"}</p>
+            <div className="ml-auto pr-2 sm:pr-0">
               <SyncIndicator />
             </div>
           </header>
           <main className="mx-auto w-full max-w-[1180px] flex-1 px-4 pt-8 pb-28 sm:px-8">{children}</main>
         </div>
       </div>
+
+      {/* Phone drawer: the same links, full labels. Closes on navigation, Escape or a tap outside. */}
+      <Drawer open={drawer} onClose={() => setDrawer(false)}>
+        <div className="flex h-14 items-center gap-2.5 border-b border-outline-variant/60 pr-2 pl-4">
+          {brand}
+          <button type="button" onClick={() => setDrawer(false)} aria-label="Close menu" className="state-layer flex size-10 items-center justify-center rounded-md text-on-surface-variant">
+            <X aria-hidden className="size-5" />
+          </button>
+        </div>
+        <nav aria-label="Main" className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-3 pt-3">
+          {links(main, () => setDrawer(false))}
+          {bottom.length > 0 && <div className="mt-auto flex flex-col gap-0.5">{links(bottom, () => setDrawer(false))}</div>}
+        </nav>
+        <div className="flex flex-col gap-3 border-t border-outline-variant/60 p-3">
+          {person}
+          <Link href="/app" onClick={() => setDrawer(false)} className="text-label-md text-on-surface-variant underline-offset-2 hover:text-on-surface hover:underline">
+            Switch role
+          </Link>
+        </div>
+      </Drawer>
       <ToastHost />
     </div>
+  );
+}
+
+function Drawer({ open, onClose, children }: { open: boolean; onClose: () => void; children: ReactNode }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const d = ref.current;
+    if (!d) return;
+    if (open && !d.open) d.showModal();
+    if (!open && d.open) d.close();
+  }, [open]);
+  // close if the screen grows past the phone breakpoint while open
+  useEffect(() => {
+    if (!open) return;
+    const mq = matchMedia("(width >= 48rem)");
+    const onChange = () => mq.matches && onClose();
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, [open, onClose]);
+  return (
+    <dialog
+      ref={ref}
+      onClose={onClose}
+      onClick={(e) => e.target === ref.current && onClose()}
+      aria-label="Menu"
+      className="fk-drawer m-0 mr-auto h-dvh max-h-dvh w-[min(300px,85vw)] max-w-none border-r border-outline-variant/70 bg-surface-container-low p-0 text-on-surface shadow-3 backdrop:bg-black/30"
+    >
+      <div className="flex h-full flex-col">{children}</div>
+    </dialog>
   );
 }
 

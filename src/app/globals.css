@@ -4,6 +4,20 @@
 /* Dark theme follows the `.dark` class set on <html> (see tokens.css). */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Side navigation shown as an icon rail: always on tablets (md to lg),
+   and on large screens when the person collapses it. Scoped to .fk-aside
+   so the phone drawer, which reuses the same links, never turns into a rail. */
+@custom-variant rail {
+  @media (width >= 48rem) and (width < 64rem) {
+    &:where(.fk-aside, .fk-aside *) {
+      @slot;
+    }
+  }
+  &:where([data-sidebar="collapsed"] .fk-aside, [data-sidebar="collapsed"] .fk-aside *) {
+    @slot;
+  }
+}
+
 /* =========================================================
    FLOWKEEP DESIGN TOKENS → TAILWIND
    Only Layer 2 (Material roles) is exposed to components.
@@ -258,6 +272,16 @@ dialog.fk-sheet[open] {
 }
 
 /* Reduced motion chosen in Settings → Appearance (in addition to the OS setting). */
+dialog.fk-drawer[open] {
+  animation: fk-drawer 220ms var(--ease-emphasized);
+}
+@keyframes fk-drawer {
+  from {
+    transform: translateX(-24px);
+    opacity: 0;
+  }
+}
+
 html[data-motion="reduce"] *,
 html[data-motion="reduce"] *::before,
 html[data-motion="reduce"] *::after {

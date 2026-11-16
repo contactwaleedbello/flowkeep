@@ -201,7 +201,7 @@ export function GroupedFaults({ state, faults, hrefFor }: { state: DemoState; fa
         if (!rows.length) return null;
         return (
           <section key={g}>
-            <h2 className="sticky top-14 z-10 flex items-center gap-2 border-b border-outline-variant/60 bg-surface-container-low/95 px-4 py-1.5 text-label-md font-semibold text-on-surface backdrop-blur dark:bg-surface-container/95">
+            <h2 className="sticky top-24 z-10 sm:top-14 flex items-center gap-2 border-b border-outline-variant/60 bg-surface-container-low/95 px-4 py-1.5 text-label-md font-semibold text-on-surface backdrop-blur dark:bg-surface-container/95">
               {WAITING_ON_LABEL[g]}
               <span className="font-mono text-[11px] font-normal text-on-surface-variant">{rows.length}</span>
             </h2>

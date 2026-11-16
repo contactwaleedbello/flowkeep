@@ -1,72 +1,93 @@
 # Foundations
 
+## Direction
+
+**Precise and technical (Linear, Vercel), warmed by people and place.** Concretely:
+
+- The product is crisp, dense and mostly monochrome, with colour only where it means something.
+- Mono type carries IDs, timestamps and section indices.
+- Warmth comes from sand neutrals, real photography of water points, and plain human copy.
+
 ## Colour
 
-Source: [`src/styles/tokens.css`](../src/styles/tokens.css), supplied by the product owner. Values there are not to be changed without updating this page.
+Source: [`src/styles/tokens.css`](../src/styles/tokens.css). It has two layers: palettes, then Material 3 roles. Components use roles only.
+
+**v2 palette, approved by the product owner.** It keeps the seven hues of the original file ([`docs/research/tokens-original.css`](../docs/research/tokens-original.css)) and re-tunes them:
+
+- **Lightness:** an even ramp from 25 (0.985) to 975 (0.165), so the low steps are true tints.
+- **Saturation:** peaks at 500 and tapers at both ends, which removes the neon tints (the old teal-50 was #26cec6, the old green-50 #32f87c).
+- **Gamut:** every step is clamped into sRGB, so colours match across screens.
+- **Dark theme:** deep slate (`slate-975`, about #0d1317), not pure black.
 
 | Palette | Role | Meaning in Flowkeep |
 |---|---|---|
-| Teal | Primary | Brand, primary actions, work in progress |
-| Amber | Secondary | Attention: needs action, waiting too long |
+| Teal | Primary | Brand, primary actions. Light theme `teal-700`; dark theme `teal-300` |
+| Amber | Secondary | Attention: needs action, waiting too long, unsynced |
 | Violet | Tertiary | Funding approved, not yet disbursed |
 | Green | Success (Flowkeep extension) | Service verified: water flowing |
 | Red | Error | Repair failed, abandoned, destructive actions |
-| Slate | Neutral dark | Text and dark surfaces; repaired, waiting for confirmation |
-| Sand | Neutral light | Light surfaces |
+| Slate | Neutral dark | Text, dark surfaces |
+| Sand | Neutral light | Warm light surfaces and hairlines |
 
-Light theme is the default. Dark theme applies when `<html>` has the `.dark` class. A script in `layout.tsx` sets it before first paint, from the saved choice or the OS setting.
+**Contrast** (`npm run audit:contrast`): every text pair passes WCAG AA in both themes. `outline` on `surface` is 3.6:1 and is for borders only, where 3:1 is the requirement.
 
-### Tailwind names
-
-The roles map one to one: `--md-primary` → `bg-primary`, `text-primary`, `border-primary`; `--md-on-surface-variant` → `text-on-surface-variant`; and so on. The palette steps (`teal-600` and the rest) are deliberately **not** available as utilities.
-
-### Contrast audit
-
-To run it: `npm run audit:contrast` (script: [`scripts/contrast-audit.mjs`](../scripts/contrast-audit.mjs)). Results for the current file:
-
-- **Every `on-X` / `X` text pair passes WCAG AA (4.5:1) in both themes.** The lowest is `on-secondary` on `secondary` in light, at 4.64.
-- Every palette colour is inside the sRGB gamut.
-- `secondary` (amber) used as **text** on `surface` in light is **4.45:1**. That's fine for icons, borders and large text, but small amber text should use `text-on-secondary-container` instead.
-- `outline` on `surface` in light is 3.98:1, which passes the 3:1 minimum for borders and other non-text UI.
-
-### Usage notes
-
-- `primary-container` (teal-50, #26cec6) and `success-container` (green-50, #32f87c) are very saturated. Use them only for small elements such as pills, chips, selected options and small highlights. For large tinted areas, use `surface-container-*`.
-- In dark mode, `surface-container-lowest` is the same colour as `surface`. Elevated cards step up to `surface-container-low` and add an `outline-variant` ring (see `Card`).
-- Toasts and the offline sync bar use `inverse-surface`, so they stand out in both themes.
+### Usage
+- Large areas stay neutral (`surface`, `surface-container-*`). Accent colour appears on status dots, the primary button, links and focus rings.
+- Hairlines use `outline-variant`, often at 60 to 80% opacity. Prefer a hairline or spacing over a filled box.
+- In dark mode, `surface-container-lowest` equals the page colour, so elevated cards step up to `surface-container-low` with a hairline ring.
 
 ## Typography
 
-| Family | Use |
-|---|---|
-| **Inter** (variable, optical sizing) | Everything: product UI and marketing. `latin-ext` covers Hausa ɓ ɗ ƙ ƴ, Fulfulde and Yoruba diacritics. `font-display` points to the same family. |
-
-The font is self-hosted through `next/font`, so the app never requests Google Fonts at runtime. Large sizes use tight negative tracking (from −0.015em at headline-sm to −0.045em at display-xl). That tracking is what makes big sans-serif type look crisp rather than loose.
-
-Type scale (Material 3), as Tailwind utilities `text-{role}-{size}`:
-
-| Token | Size / line height | Use |
+| Family | Token | Use |
 |---|---|---|
-| `display-xl / lg / md / sm` | 76, 57, 45, 36 (line height 1.02 to 1.12) | Marketing headlines |
-| `headline-lg / md / sm` | 32/40, 28/36, 24/32 | Page titles; phone screen titles |
-| `title-lg / md / sm` | 22/28, 16/24, 14/20 | Record titles, card titles |
-| `body-lg / md / sm` | 16/24, 14/20, 12/16 | Phone body (16px minimum), desktop body, timestamps |
-| `label-lg / md / sm` | 14/20, 12/16, 11/16 | Buttons, pills, chips |
+| **Inter Tight** | `font-display` (all `h1`–`h3` by default) | Headlines and titles |
+| **Inter** (variable, optical sizing) | `font-sans` | Body and UI |
+| **Geist Mono** | `font-mono`, `mono-label` | IDs (`F-029`, `WP-02`), timestamps, section indices, table headers |
+
+- **Hausa letters:** I checked the font files. Inter and Inter Tight both contain ɓ ɗ ƙ ƴ and their capitals. Geist Mono is only used for ASCII.
+- **Figures:** use `num` (tabular figures) for money, counts and durations.
+- **Hosting:** all three fonts are self-hosted through `next/font`, so there are no runtime requests to Google.
+
+| Token | Size / line height | Tracking | Use |
+|---|---|---|---|
+| `display-xl / lg / md / sm` | 76 / 57 / 45 / 36, line height 1.02 to 1.12 | −0.020 to −0.012em | Marketing headlines |
+| `headline-lg / md / sm` | 32 / 28 / 24 | −0.010 to −0.005em | Page and screen titles |
+| `title-lg / md / sm` | 22 / 16 / 14 | — | Record and card titles |
+| `body-lg / md / sm` | 16 / 14 / 12 | — | Phone body (16px minimum), desktop body, helper text |
+| `label-lg / md / sm` | 14 / 12 / 11 | — | Buttons, rows, chips |
 
 ## Shape
 
-`rounded-xs` 4 · `sm` 8 (toasts) · `md` 12 (fields, choice rows, banners) · `lg` 16 (cards) · `xl` 20 (bento tiles, app window) · `2xl` 28 · `full` (buttons, pills, tabs).
+These are precise corners, not pills:
+
+| Token | Radius | Use |
+|---|---|---|
+| `rounded-xs` | 4 | — |
+| `rounded-sm` | 6 | Status badges, chips |
+| `rounded-md` | 8 | Buttons, inputs, nav items |
+| `rounded-lg` | 12 | Cards, lists |
+| `rounded-xl` | 16 | Dialogs, app window |
+| `rounded-2xl` | 20 | Bento tiles |
+| `rounded-full` | — | Avatars and dots only |
 
 ## Elevation
 
-Depth comes mostly from tonal surfaces (`surface-container-lowest` → `highest`) and hairline borders (`outline-variant` at reduced opacity). Shadows are soft and wide: `shadow-1` is a 1px lift for buttons and fields, `shadow-2` is for floating cards, and `shadow-3` is for the hero window and toasts.
+Depth comes from tonal surfaces and hairlines first. Shadows are soft and layered:
 
-## Visual style
+| Token | Use |
+|---|---|
+| `shadow-1` | Buttons, inputs, the active nav item |
+| `shadow-2` | Floating cards, the current step |
+| `shadow-3` | Dialogs, the demo dock, the hero window |
 
-The aim is modern, clean and minimal:
-- Colour lives in icons, the primary button and small accents. Large areas stay neutral.
-- Status pills are neutral with a coloured icon. Only closed states are solid.
-- Use generous whitespace, with sections at 96 to 128px vertical padding, and fewer boxes. Separate content with hairlines and spacing before adding borders.
+## Photography
+
+Photos are the main carrier of warmth (direction c). Rules are in `src/lib/photos.ts`:
+
+- **Licences:** only openly licensed photos (CC0, CC BY, CC BY-SA) or photos the team owns.
+- **Captions:** state the place and the photographer, with the licence and a link to the source.
+- **Honesty:** never present a third-party photo as Flowkeep pilot work.
+- **Until a photo is added:** the slot shows a line drawing of a hand pump in role colours (`PumpIllustration`).
 
 ## Spacing and touch
 

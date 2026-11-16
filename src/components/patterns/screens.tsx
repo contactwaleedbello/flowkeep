@@ -1,4 +1,4 @@
-import { ChevronRight, Droplet, MapPin, Phone, Signal, Wifi, BatteryMedium } from "lucide-react";
+import { ChevronRight, CloudUpload, Droplet, MapPin, Phone, Signal, Wifi, BatteryMedium } from "lucide-react";
 import type { ReactNode } from "react";
 import {
   FAULT_STATUS,
@@ -12,7 +12,7 @@ import { Card } from "@/components/ui/card";
 import { ChoiceList } from "@/components/ui/choice-list";
 import { SyncBar, SyncTag } from "@/components/ui/feedback";
 import { LifecycleStepper } from "@/components/ui/lifecycle";
-import { CountBadge, StatusPill } from "@/components/ui/status-pill";
+import { StatusDot, StatusPill } from "@/components/ui/status-pill";
 import { Timeline } from "@/components/ui/timeline";
 
 /* ------------------------------------------------------------------ */
@@ -24,30 +24,21 @@ export function FaultRow({ fault, selected = false }: { fault: SampleFault; sele
     <li
       aria-current={selected || undefined}
       className={cn(
-        "state-layer flex items-start gap-3 px-4 py-3 text-on-surface sm:items-center",
+        "grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 px-4 py-2.5 text-on-surface sm:grid-cols-[48px_1fr_170px_36px]",
         selected && "bg-surface-container-low shadow-[inset_2px_0_0_var(--md-primary)]",
       )}
     >
-      <span className="w-12 shrink-0 pt-0.5 font-mono text-body-sm text-on-surface-variant sm:pt-0">{fault.id}</span>
-      <div className="flex min-w-0 flex-1 flex-col gap-1 sm:gap-0">
-        <span className="truncate text-body-md font-semibold">{fault.waterPoint}</span>
-        <span className="truncate text-body-sm text-on-surface-variant">
+      <span className="hidden font-mono text-[12px] text-on-surface-variant sm:block">{fault.id}</span>
+      <span className="min-w-0">
+        <span className="block truncate text-label-lg font-medium">{fault.waterPoint}</span>
+        <span className="block truncate text-body-sm text-on-surface-variant">
           {fault.community} · {fault.faultType}
         </span>
-        <div className="flex flex-wrap items-center gap-2 pt-1 sm:hidden">
-          <StatusPill status={fault.status} size="sm" />
-          <span className="text-body-sm text-on-surface-variant">{fault.daysInState}d</span>
-          <SyncTag synced={fault.synced} />
-        </div>
-      </div>
-      <div className="hidden flex-col items-end gap-1 sm:flex">
-        <StatusPill status={fault.status} size="sm" />
-        <span className="text-body-sm text-on-surface-variant">
-          {fault.daysInState} {fault.daysInState === 1 ? "day" : "days"} in this state
-        </span>
-      </div>
-      <span className="hidden sm:inline">
-        <SyncTag synced={fault.synced} />
+      </span>
+      <StatusDot status={fault.status} className="col-start-1 row-start-2 text-label-md sm:col-start-auto sm:row-start-auto" />
+      <span className="col-start-2 row-span-2 row-start-1 flex items-center justify-end gap-1.5 font-mono text-[12px] text-on-surface-variant sm:col-start-auto sm:row-span-1 sm:row-start-auto">
+        {!fault.synced && <CloudUpload aria-label="Sync pending" className="size-3.5 text-secondary" />}
+        {fault.daysInState}d
       </span>
     </li>
   );
@@ -78,10 +69,10 @@ export function OpenFaultsList({
         if (!rows.length) return null;
         return (
           <section key={group}>
-            <h3 className="flex items-center gap-2 border-y border-outline-variant/70 bg-surface-container-low/70 px-4 py-1.5 text-label-md font-semibold text-on-surface-variant">
-              {WAITING_ON_LABEL[group]} <CountBadge count={rows.length} />
+            <h3 className="flex items-center gap-2 border-y border-outline-variant/60 bg-surface-container-low/70 px-4 py-1.5 text-label-md font-semibold text-on-surface">
+              {WAITING_ON_LABEL[group]} <span className="font-mono text-[11px] font-normal text-on-surface-variant">{rows.length}</span>
             </h3>
-            <ul className="divide-y divide-outline-variant/70">
+            <ul className="divide-y divide-outline-variant/50">
               {rows.map((f) => (
                 <FaultRow key={f.id} fault={f} selected={f.id === selectedId} />
               ))}

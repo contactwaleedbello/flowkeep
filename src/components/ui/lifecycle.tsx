@@ -27,19 +27,19 @@ export function LifecycleStepper({
           return (
             <li key={s.key} className="flex flex-1 flex-col items-center gap-1.5 text-center" aria-current={state === "current" ? "step" : undefined}>
               <div className="flex w-full items-center">
-                <span className={cn("h-0.5 flex-1", i === 0 ? "bg-transparent" : i <= idx ? "bg-primary" : "bg-outline-variant")} />
+                <span className={cn("h-px flex-1", i === 0 ? "bg-transparent" : i <= idx ? "bg-primary" : "bg-outline-variant")} />
                 <StepDot state={state} index={i} />
                 <span
                   className={cn(
-                    "h-0.5 flex-1",
+                    "h-px flex-1",
                     i === LIFECYCLE_STEPS.length - 1 ? "bg-transparent" : i < idx ? "bg-primary" : "bg-outline-variant",
                   )}
                 />
               </div>
-              <span className={cn("px-0.5 text-label-sm leading-tight sm:text-label-md", state === "upcoming" ? "text-on-surface-variant" : "font-semibold text-on-surface")}>
+              <span className={cn("px-0.5 text-label-sm leading-tight sm:text-label-md", state === "upcoming" ? "text-on-surface-variant" : state === "current" ? "font-semibold text-on-surface" : "font-medium text-on-surface")}>
                 {s.label}
               </span>
-              <span className="hidden text-label-sm text-on-surface-variant sm:block">{s.role}</span>
+              <span className="hidden font-mono text-[10.5px] text-on-surface-variant sm:block">{s.role}</span>
             </li>
           );
         })}
@@ -57,18 +57,18 @@ export function LifecycleStepper({
 export function StepDot({ state, index }: { state: StepState; index: number }) {
   if (state === "done")
     return (
-      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary">
-        <Check aria-hidden className="size-4" strokeWidth={3} />
+      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary">
+        <Check aria-hidden className="size-3.5" strokeWidth={3} />
       </span>
     );
   if (state === "current")
     return (
-      <span className="flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-surface-container-lowest text-label-md font-bold text-primary ring-4 ring-primary/15">
+      <span className="flex size-6 shrink-0 items-center justify-center rounded-full border-[1.5px] border-primary bg-surface-container-lowest font-mono text-[11px] font-medium text-primary ring-4 ring-primary/10 dark:bg-surface">
         {index + 1}
       </span>
     );
   return (
-    <span className="flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-outline-variant bg-surface-container-lowest text-label-md text-on-surface-variant">
+    <span className="flex size-6 shrink-0 items-center justify-center rounded-full border-[1.5px] border-outline-variant bg-surface-container-lowest font-mono text-[11px] text-on-surface-variant dark:bg-surface">
       {index + 1}
     </span>
   );
@@ -93,8 +93,8 @@ export function VerticalSteps({
               <span
                 aria-hidden
                 className={cn(
-                  "absolute top-7 bottom-0 left-[13px] w-0.5",
-                  s.state === "done" ? "bg-primary" : "border-l-2 border-dashed border-outline-variant",
+                  "absolute top-6 bottom-0 left-[11.5px] w-px",
+                  s.state === "done" ? "bg-primary" : "border-l border-dashed border-outline",
                 )}
               />
             )}
@@ -102,11 +102,11 @@ export function VerticalSteps({
             <div
               className={cn(
                 "flex flex-1 flex-col gap-1",
-                s.state === "current" && "rounded-md border border-primary/40 bg-surface-container-lowest p-3 shadow-1",
+                s.state === "current" && "-mt-1 rounded-lg border border-outline-variant bg-surface-container-lowest p-3 shadow-2 dark:bg-surface-container",
               )}
             >
-              <span className={cn("text-body-lg", s.state === "upcoming" ? "text-on-surface-variant" : "font-semibold text-on-surface")}>{s.title}</span>
-              {s.meta && <span className="text-body-sm text-on-surface-variant">{s.meta}</span>}
+              <span className={cn("text-body-md leading-6", s.state === "upcoming" ? "text-on-surface-variant" : "font-medium text-on-surface")}>{s.title}</span>
+              {s.meta && <span className="font-mono text-[11.5px] leading-4 text-on-surface-variant">{s.meta}</span>}
               {s.body && <div className="pt-1 text-body-md text-on-surface">{s.body}</div>}
             </div>
           </li>

@@ -1,153 +1,153 @@
-/* Source: Flowkeep colour system supplied by the product owner. Do not edit values here without updating design-system/foundations.md. */
 /* =========================================================
    FLOWKEEP COLOR TOKENS
    Layer 1: palettes. Layer 2: Material Design 3 roles.
    Components must reference layer 2 only.
+
+   v2 (approved by the product owner): same seven hues as the
+   original file (docs/research/tokens-original.css), re-tuned:
+   - even lightness ramp, so 25 to 100 are true tints
+   - chroma peaks at 500 and tapers at both ends (no neon tints)
+   - dark theme uses deep slate (L 0.165), not pure black
    ========================================================= */
 
 /* ---------- Layer 1: palettes ---------- */
 
 :root {
   /* Teal. Primary. */
-  --teal-25:  oklch(0.836 0.138 189.62);
-  --teal-50:  oklch(0.770 0.127 189.62);
-  --teal-100: oklch(0.703 0.116 189.62);
-  --teal-200: oklch(0.636 0.105 189.62);
-  --teal-300: oklch(0.570 0.094 189.62);
-  --teal-400: oklch(0.503 0.083 189.62);
-  --teal-500: oklch(0.436 0.072 189.62);
-  --teal-600: oklch(0.372 0.062 189.62);
-  --teal-700: oklch(0.308 0.051 189.62);
-  --teal-800: oklch(0.243 0.040 189.62);
-  --teal-900: oklch(0.179 0.030 189.62);
-  --teal-950: oklch(0.114 0.019 189.62);
-  --teal-975: oklch(0.050 0.008 189.62);
+  --teal-25: oklch(0.985 0.012 189.62);
+  --teal-50: oklch(0.966 0.021 189.62);
+  --teal-100: oklch(0.932 0.035 189.62);
+  --teal-200: oklch(0.882 0.055 189.62);
+  --teal-300: oklch(0.810 0.083 189.62);
+  --teal-400: oklch(0.710 0.104 189.62);
+  --teal-500: oklch(0.610 0.105 189.62);
+  --teal-600: oklch(0.520 0.090 189.62);
+  --teal-700: oklch(0.445 0.077 189.62);
+  --teal-800: oklch(0.375 0.065 189.62);
+  --teal-900: oklch(0.305 0.053 189.62);
+  --teal-950: oklch(0.235 0.042 189.62);
+  --teal-975: oklch(0.165 0.031 189.62);
 
   /* Amber. Secondary. Attention. */
-  --amber-25:  oklch(0.950 0.033 72.95);
-  --amber-50:  oklch(0.919 0.055 72.95);
-  --amber-100: oklch(0.888 0.077 72.95);
-  --amber-200: oklch(0.857 0.101 72.95);
-  --amber-300: oklch(0.827 0.125 72.95);
-  --amber-400: oklch(0.796 0.146 72.95);
-  --amber-500: oklch(0.765 0.140 72.95);
-  --amber-600: oklch(0.698 0.128 72.95);
-  --amber-700: oklch(0.632 0.116 72.95);
-  --amber-800: oklch(0.565 0.103 72.95);
-  --amber-900: oklch(0.498 0.091 72.95);
-  --amber-950: oklch(0.432 0.079 72.95);
-  --amber-975: oklch(0.365 0.067 72.95);
+  --amber-25: oklch(0.985 0.011 72.95);
+  --amber-50: oklch(0.966 0.026 72.95);
+  --amber-100: oklch(0.932 0.045 72.95);
+  --amber-200: oklch(0.882 0.072 72.95);
+  --amber-300: oklch(0.810 0.108 72.95);
+  --amber-400: oklch(0.710 0.135 72.95);
+  --amber-500: oklch(0.610 0.130 72.95);
+  --amber-600: oklch(0.520 0.111 72.95);
+  --amber-700: oklch(0.445 0.095 72.95);
+  --amber-800: oklch(0.375 0.080 72.95);
+  --amber-900: oklch(0.305 0.066 72.95);
+  --amber-950: oklch(0.235 0.052 72.95);
+  --amber-975: oklch(0.165 0.041 72.95);
 
-  /* Slate. Neutral dark. Repaired. */
-  --slate-25:  oklch(0.955 0.012 237.795);
-  --slate-50:  oklch(0.925 0.018 237.795);
-  --slate-100: oklch(0.875 0.028 237.795);
-  --slate-200: oklch(0.785 0.040 237.795);
-  --slate-300: oklch(0.685 0.050 237.795);
-  --slate-400: oklch(0.585 0.050 237.795);
-  --slate-500: oklch(0.485 0.042 237.795);
-  --slate-600: oklch(0.395 0.034 237.795);
-  --slate-700: oklch(0.305 0.026 237.795);
-  --slate-800: oklch(0.225 0.020 237.795);
-  --slate-900: oklch(0.155 0.014 237.795);
-  --slate-950: oklch(0.095 0.010 237.795);
-  --slate-975: oklch(0.045 0.006 237.795);
+  /* Slate. Neutral dark. Text and dark surfaces. */
+  --slate-25: oklch(0.985 0.003 237.795);
+  --slate-50: oklch(0.966 0.006 237.795);
+  --slate-100: oklch(0.932 0.010 237.795);
+  --slate-200: oklch(0.882 0.015 237.795);
+  --slate-300: oklch(0.810 0.023 237.795);
+  --slate-400: oklch(0.710 0.029 237.795);
+  --slate-500: oklch(0.610 0.032 237.795);
+  --slate-600: oklch(0.520 0.030 237.795);
+  --slate-700: oklch(0.445 0.028 237.795);
+  --slate-800: oklch(0.375 0.024 237.795);
+  --slate-900: oklch(0.305 0.020 237.795);
+  --slate-950: oklch(0.235 0.016 237.795);
+  --slate-975: oklch(0.165 0.013 237.795);
 
-  /* Sand. Neutral light. Rebuilt. */
-  --sand-25:  oklch(0.985 0.006 80.721);
-  --sand-50:  oklch(0.965 0.008 80.721);
-  --sand-100: oklch(0.935 0.010 80.721);
-  --sand-200: oklch(0.885 0.014 80.721);
-  --sand-300: oklch(0.825 0.018 80.721);
-  --sand-400: oklch(0.755 0.022 80.721);
-  --sand-500: oklch(0.675 0.024 80.721);
-  --sand-600: oklch(0.585 0.024 80.721);
-  --sand-700: oklch(0.485 0.022 80.721);
-  --sand-800: oklch(0.385 0.020 80.721);
-  --sand-900: oklch(0.275 0.016 80.721);
-  --sand-950: oklch(0.185 0.012 80.721);
-  --sand-975: oklch(0.095 0.008 80.721);
+  /* Sand. Neutral light. Warm surfaces. */
+  --sand-25: oklch(0.985 0.001 80.721);
+  --sand-50: oklch(0.966 0.003 80.721);
+  --sand-100: oklch(0.932 0.004 80.721);
+  --sand-200: oklch(0.882 0.007 80.721);
+  --sand-300: oklch(0.810 0.010 80.721);
+  --sand-400: oklch(0.710 0.013 80.721);
+  --sand-500: oklch(0.610 0.014 80.721);
+  --sand-600: oklch(0.520 0.013 80.721);
+  --sand-700: oklch(0.445 0.012 80.721);
+  --sand-800: oklch(0.375 0.010 80.721);
+  --sand-900: oklch(0.305 0.009 80.721);
+  --sand-950: oklch(0.235 0.007 80.721);
+  --sand-975: oklch(0.165 0.006 80.721);
 
   /* Green. Success. Service verified. */
-  --green-25:  oklch(0.927 0.119 150.069);
-  --green-50:  oklch(0.861 0.224 150.069);
-  --green-100: oklch(0.794 0.206 150.069);
-  --green-200: oklch(0.727 0.189 150.069);
-  --green-300: oklch(0.661 0.172 150.069);
-  --green-400: oklch(0.594 0.154 150.069);
-  --green-500: oklch(0.527 0.137 150.069);
-  --green-600: oklch(0.461 0.120 150.069);
-  --green-700: oklch(0.394 0.102 150.069);
-  --green-800: oklch(0.327 0.085 150.069);
-  --green-900: oklch(0.261 0.068 150.069);
-  --green-950: oklch(0.194 0.050 150.069);
-  --green-975: oklch(0.127 0.033 150.069);
+  --green-25: oklch(0.985 0.015 150.069);
+  --green-50: oklch(0.966 0.027 150.069);
+  --green-100: oklch(0.932 0.045 150.069);
+  --green-200: oklch(0.882 0.072 150.069);
+  --green-300: oklch(0.810 0.108 150.069);
+  --green-400: oklch(0.710 0.135 150.069);
+  --green-500: oklch(0.610 0.150 150.069);
+  --green-600: oklch(0.520 0.142 150.069);
+  --green-700: oklch(0.445 0.123 150.069);
+  --green-800: oklch(0.375 0.104 150.069);
+  --green-900: oklch(0.305 0.085 150.069);
+  --green-950: oklch(0.235 0.067 150.069);
+  --green-975: oklch(0.165 0.050 150.069);
 
   /* Violet. Tertiary. Funding approved, not disbursed. */
-  --violet-25:  oklch(0.886 0.031 300.189);
-  --violet-50:  oklch(0.819 0.051 300.189);
-  --violet-100: oklch(0.753 0.072 300.189);
-  --violet-200: oklch(0.686 0.094 300.189);
-  --violet-300: oklch(0.619 0.117 300.189);
-  --violet-400: oklch(0.553 0.141 300.189);
-  --violet-500: oklch(0.486 0.124 300.189);
-  --violet-600: oklch(0.419 0.107 300.189);
-  --violet-700: oklch(0.353 0.090 300.189);
-  --violet-800: oklch(0.286 0.073 300.189);
-  --violet-900: oklch(0.219 0.056 300.189);
-  --violet-950: oklch(0.153 0.039 300.189);
-  --violet-975: oklch(0.086 0.022 300.189);
+  --violet-25: oklch(0.985 0.008 300.189);
+  --violet-50: oklch(0.966 0.018 300.189);
+  --violet-100: oklch(0.932 0.038 300.189);
+  --violet-200: oklch(0.882 0.065 300.189);
+  --violet-300: oklch(0.810 0.097 300.189);
+  --violet-400: oklch(0.710 0.122 300.189);
+  --violet-500: oklch(0.610 0.135 300.189);
+  --violet-600: oklch(0.520 0.128 300.189);
+  --violet-700: oklch(0.445 0.116 300.189);
+  --violet-800: oklch(0.375 0.100 300.189);
+  --violet-900: oklch(0.305 0.084 300.189);
+  --violet-950: oklch(0.235 0.068 300.189);
+  --violet-975: oklch(0.165 0.054 300.189);
 
   /* Red. Error. Failed, abandoned, destructive. */
-  --red-25:  oklch(0.905 0.045 27.518);
-  --red-50:  oklch(0.839 0.082 27.518);
-  --red-100: oklch(0.772 0.124 27.518);
-  --red-200: oklch(0.705 0.172 27.518);
-  --red-300: oklch(0.639 0.228 27.518);
-  --red-400: oklch(0.572 0.216 27.518);
-  --red-500: oklch(0.505 0.190 27.518);
-  --red-600: oklch(0.439 0.165 27.518);
-  --red-700: oklch(0.372 0.140 27.518);
-  --red-800: oklch(0.305 0.115 27.518);
-  --red-900: oklch(0.239 0.090 27.518);
-  --red-950: oklch(0.172 0.065 27.518);
-  --red-975: oklch(0.105 0.040 27.518);
+  --red-25: oklch(0.985 0.007 27.518);
+  --red-50: oklch(0.966 0.016 27.518);
+  --red-100: oklch(0.932 0.034 27.518);
+  --red-200: oklch(0.882 0.062 27.518);
+  --red-300: oklch(0.810 0.107 27.518);
+  --red-400: oklch(0.710 0.171 27.518);
+  --red-500: oklch(0.610 0.190 27.518);
+  --red-600: oklch(0.520 0.180 27.518);
+  --red-700: oklch(0.445 0.163 27.518);
+  --red-800: oklch(0.375 0.141 27.518);
+  --red-900: oklch(0.305 0.118 27.518);
+  --red-950: oklch(0.235 0.095 27.518);
+  --red-975: oklch(0.165 0.073 27.518);
 }
 
 /* ---------- Layer 2: Material roles, light theme ---------- */
 
 :root {
-  /* Primary */
-  --md-primary: var(--teal-600);
+  --md-primary: var(--teal-700);
   --md-on-primary: #FFFFFF;
   --md-primary-container: var(--teal-50);
-  --md-on-primary-container: var(--teal-950);
+  --md-on-primary-container: var(--teal-900);
 
-  /* Secondary */
-  --md-secondary: var(--amber-800);
+  --md-secondary: var(--amber-600);
   --md-on-secondary: #FFFFFF;
   --md-secondary-container: var(--amber-50);
-  --md-on-secondary-container: var(--amber-975);
+  --md-on-secondary-container: var(--amber-900);
 
-  /* Tertiary */
   --md-tertiary: var(--violet-600);
   --md-on-tertiary: #FFFFFF;
   --md-tertiary-container: var(--violet-50);
-  --md-on-tertiary-container: var(--violet-950);
+  --md-on-tertiary-container: var(--violet-900);
 
-  /* Error */
   --md-error: var(--red-600);
   --md-on-error: #FFFFFF;
   --md-error-container: var(--red-50);
-  --md-on-error-container: var(--red-950);
+  --md-on-error-container: var(--red-900);
 
   /* Success. Flowkeep extension. */
   --md-success: var(--green-600);
   --md-on-success: #FFFFFF;
   --md-success-container: var(--green-50);
-  --md-on-success-container: var(--green-975);
+  --md-on-success-container: var(--green-900);
 
-  /* Surface */
   --md-surface: var(--sand-25);
   --md-surface-dim: var(--sand-200);
   --md-surface-bright: var(--sand-25);
@@ -156,64 +156,62 @@
   --md-surface-container: var(--sand-100);
   --md-surface-container-high: var(--sand-200);
   --md-surface-container-highest: var(--sand-300);
-  --md-on-surface: var(--slate-900);
-  --md-on-surface-variant: var(--slate-600);
+  --md-on-surface: var(--slate-950);
+  --md-on-surface-variant: var(--slate-700);
   --md-surface-variant: var(--sand-200);
-  --md-surface-tint: var(--teal-600);
+  --md-surface-tint: var(--teal-700);
 
-  /* Outline */
-  --md-outline: var(--slate-400);
-  --md-outline-variant: var(--sand-300);
+  --md-outline: var(--sand-500);
+  --md-outline-variant: var(--sand-200);
 
-  /* Inverse */
-  --md-inverse-surface: var(--slate-800);
+  --md-inverse-surface: var(--slate-900);
   --md-inverse-on-surface: var(--sand-50);
-  --md-inverse-primary: var(--teal-200);
+  --md-inverse-primary: var(--teal-300);
 }
 
 /* ---------- Layer 2: Material roles, dark theme ---------- */
 
 .dark {
-  --md-primary: var(--teal-50);
+  --md-primary: var(--teal-300);
   --md-on-primary: var(--teal-975);
-  --md-primary-container: var(--teal-800);
-  --md-on-primary-container: var(--teal-50);
+  --md-primary-container: var(--teal-900);
+  --md-on-primary-container: var(--teal-100);
 
   --md-secondary: var(--amber-300);
   --md-on-secondary: var(--amber-975);
   --md-secondary-container: var(--amber-900);
-  --md-on-secondary-container: var(--amber-50);
+  --md-on-secondary-container: var(--amber-100);
 
   --md-tertiary: var(--violet-300);
   --md-on-tertiary: var(--violet-975);
-  --md-tertiary-container: var(--violet-800);
-  --md-on-tertiary-container: var(--violet-50);
+  --md-tertiary-container: var(--violet-900);
+  --md-on-tertiary-container: var(--violet-100);
 
   --md-error: var(--red-300);
   --md-on-error: var(--red-975);
-  --md-error-container: var(--red-800);
-  --md-on-error-container: var(--red-50);
+  --md-error-container: var(--red-900);
+  --md-on-error-container: var(--red-100);
 
   --md-success: var(--green-300);
   --md-on-success: var(--green-975);
-  --md-success-container: var(--green-800);
-  --md-on-success-container: var(--green-50);
+  --md-success-container: var(--green-900);
+  --md-on-success-container: var(--green-100);
 
   --md-surface: var(--slate-975);
   --md-surface-dim: var(--slate-975);
-  --md-surface-bright: var(--slate-700);
+  --md-surface-bright: var(--slate-800);
   --md-surface-container-lowest: var(--slate-975);
   --md-surface-container-low: var(--slate-950);
   --md-surface-container: var(--slate-900);
   --md-surface-container-high: var(--slate-800);
   --md-surface-container-highest: var(--slate-700);
   --md-on-surface: var(--sand-50);
-  --md-on-surface-variant: var(--sand-200);
+  --md-on-surface-variant: var(--slate-200);
   --md-surface-variant: var(--slate-800);
-  --md-surface-tint: var(--teal-200);
+  --md-surface-tint: var(--teal-300);
 
-  --md-outline: var(--slate-400);
-  --md-outline-variant: var(--slate-600);
+  --md-outline: var(--slate-500);
+  --md-outline-variant: var(--slate-800);
 
   --md-inverse-surface: var(--sand-50);
   --md-inverse-on-surface: var(--slate-900);

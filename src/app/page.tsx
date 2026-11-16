@@ -17,6 +17,8 @@ import type { ReactNode } from "react";
 import { site } from "@/lib/site";
 import { AppWindowPreview } from "@/components/marketing/app-preview";
 import { ApplyForm } from "@/components/marketing/apply-form";
+import { FieldPhoto } from "@/components/marketing/field-photo";
+import { PHOTOS } from "@/lib/photos";
 import { SiteFooter, SiteHeader } from "@/components/marketing/site-chrome";
 import { ApprovalPanel, ConfirmFlowPhone, OpenFaultsList } from "@/components/patterns/screens";
 import { ButtonLink } from "@/components/ui/button";
@@ -47,16 +49,27 @@ export default function Home() {
 
 function Section({ id, children, className = "" }: { id?: string; children: ReactNode; className?: string }) {
   return (
-    <section id={id} className={`scroll-mt-16 ${className}`}>
+    <section id={id} className={`scroll-mt-16 border-t border-outline-variant/60 ${className}`}>
       <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 sm:py-32">{children}</div>
     </section>
   );
 }
 
-function SectionHeader({ kicker, title, body, center = false }: { kicker: string; title: ReactNode; body?: ReactNode; center?: boolean }) {
+/** Mono index label, e.g. "02  How it works". */
+function Kicker({ n, children }: { n: string; children: ReactNode }) {
   return (
-    <div className={`flex max-w-2xl flex-col gap-4 ${center ? "mx-auto items-center text-center" : ""}`}>
-      <p className="text-label-lg font-medium text-primary">{kicker}</p>
+    <p className="flex items-center gap-3 font-mono text-[12px] tracking-[0.08em] text-on-surface-variant uppercase">
+      <span className="text-primary">{n}</span>
+      <span aria-hidden className="h-px w-6 bg-outline-variant" />
+      {children}
+    </p>
+  );
+}
+
+function SectionHeader({ n, kicker, title, body, center = false }: { n: string; kicker: string; title: ReactNode; body?: ReactNode; center?: boolean }) {
+  return (
+    <div className={`flex max-w-2xl flex-col gap-5 ${center ? "mx-auto items-center text-center" : ""}`}>
+      <Kicker n={n}>{kicker}</Kicker>
       <h2 className="text-headline-lg font-semibold text-balance text-on-surface sm:text-display-sm">{title}</h2>
       {body && <p className="text-body-lg text-pretty text-on-surface-variant sm:text-title-lg sm:leading-8 sm:font-normal">{body}</p>}
     </div>
@@ -71,18 +84,26 @@ function Hero() {
       {/* soft glow in the primary role colour */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 -top-40 h-[640px] opacity-60 dark:opacity-40"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[720px]"
         style={{
-          background:
-            "radial-gradient(60% 50% at 50% 30%, color-mix(in oklch, var(--md-primary) 14%, transparent), transparent 70%)",
+          backgroundImage:
+            "linear-gradient(to right, color-mix(in oklch, var(--md-outline-variant) 70%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklch, var(--md-outline-variant) 70%, transparent) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+          maskImage: "radial-gradient(70% 60% at 50% 20%, black 30%, transparent 75%)",
+          WebkitMaskImage: "radial-gradient(70% 60% at 50% 20%, black 30%, transparent 75%)",
         }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 -top-40 h-[640px] opacity-70 dark:opacity-40"
+        style={{ background: "radial-gradient(50% 45% at 50% 35%, color-mix(in oklch, var(--md-secondary-container) 90%, transparent), transparent 70%)" }}
       />
       <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pt-20 text-center sm:px-6 sm:pt-28">
         <a
           href="#pilot"
-          className="group mb-8 inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-lowest/70 py-1 pr-3 pl-1.5 text-label-lg text-on-surface-variant shadow-1 backdrop-blur transition-colors hover:text-on-surface"
+          className="group mb-8 inline-flex items-center gap-2 rounded-full border border-outline-variant bg-surface-container-lowest/80 py-1 pr-3 pl-1 text-label-lg text-on-surface-variant shadow-1 backdrop-blur transition-colors hover:text-on-surface dark:bg-surface-container/80"
         >
-          <span className="rounded-full bg-primary px-2 py-0.5 text-label-md font-semibold text-on-primary">Pilot</span>
+          <span className="rounded-full bg-inverse-surface px-2 py-0.5 font-mono text-[11px] tracking-wide text-inverse-on-surface uppercase">Pilot</span>
           <span className="sm:hidden">Looking for one partner</span>
           <span className="hidden sm:inline">Looking for one partner in {site.regions}</span>
           <ArrowRight aria-hidden className="size-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -124,6 +145,9 @@ const QUESTIONS = [
 function Problem() {
   return (
     <Section id="problem">
+      <div className="mb-14">
+        <Kicker n="01">The problem</Kicker>
+      </div>
       <p className="max-w-4xl text-headline-md font-medium text-balance text-on-surface-variant sm:text-display-sm sm:font-medium">
         Faults will always happen.{" "}
         <span className="text-on-surface">The real problem is that no one holds the record</span> from the first report to
@@ -140,6 +164,7 @@ function Problem() {
       <p className="mt-10 text-body-sm text-on-surface-variant">
         Based on a typical reporting chain, not on research. Measuring the real one is part of the pilot.
       </p>
+      <FieldPhoto photo={PHOTOS.problem} className="mt-16" aspect="aspect-[16/9] sm:aspect-[21/9]" />
     </Section>
   );
 }
@@ -157,18 +182,18 @@ const STEPS = [
 
 function HowItWorks() {
   return (
-    <Section id="how" className="bg-surface-container-low">
+    <Section id="how">
       <SectionHeader
-        kicker="How it works"
+        n="02" kicker="How it works"
         title="Six steps. Each one recorded by the person who did it."
         body="No step can be skipped, and every entry carries a name, a role and a time."
       />
-      <ol className="mt-16 grid gap-px overflow-hidden rounded-xl bg-outline-variant/70 sm:grid-cols-2 lg:grid-cols-3">
+      <ol className="mt-16 grid gap-px overflow-hidden rounded-xl bg-outline-variant/70 ring-1 ring-outline-variant/70 sm:grid-cols-2 lg:grid-cols-3">
         {STEPS.map((s, i) => (
           <li key={s.title} className="flex flex-col gap-3 bg-surface-container-lowest p-7 dark:bg-surface-container-low">
             <div className="flex items-center justify-between">
-              <span className="font-mono text-label-lg text-on-surface-variant">0{i + 1}</span>
-              <span className="text-label-md text-on-surface-variant">{s.role}</span>
+              <span className="font-mono text-[12px] text-primary">0{i + 1}</span>
+              <span className="font-mono text-[11px] tracking-wide text-on-surface-variant uppercase">{s.role}</span>
             </div>
             <h3 className="mt-6 text-headline-sm font-semibold text-on-surface">{s.title}</h3>
             <p className="text-body-lg text-on-surface-variant">{s.body}</p>
@@ -183,7 +208,7 @@ function HowItWorks() {
 
 function Tile({ title, body, children, className = "" }: { title: string; body: string; children: ReactNode; className?: string }) {
   return (
-    <div className={`relative flex flex-col overflow-hidden rounded-xl bg-surface-container-low ${className}`}>
+    <div className={`relative flex flex-col overflow-hidden rounded-2xl border border-outline-variant/70 bg-surface-container-low ${className}`}>
       <div className="relative z-10 flex flex-col gap-1.5 p-7 pb-0">
         <h3 className="text-title-lg font-semibold text-on-surface">{title}</h3>
         <p className="max-w-md text-body-lg text-on-surface-variant">{body}</p>
@@ -197,7 +222,7 @@ function Product() {
   return (
     <Section id="product">
       <SectionHeader
-        kicker="Product"
+        n="03" kicker="Product"
         title="Everyone sees the one thing waiting on them."
         body="There are no reminders in the first version, so each person's first screen is their own queue."
       />
@@ -257,12 +282,20 @@ const NOT_YET = [
 
 function Field() {
   return (
-    <Section id="field" className="bg-surface-container-low">
-      <SectionHeader kicker="Built for the field" title="Made for patchy data, shared phones and audits." />
+    <Section id="field">
+      <div className="grid items-end gap-10 lg:grid-cols-[1fr_1.2fr]">
+        <SectionHeader
+          n="04"
+          kicker="Built for the field"
+          title="Made for patchy data, shared phones and audits."
+          body="The people who keep water flowing work far from good signal. Flowkeep is built around them, not around the office."
+        />
+        <FieldPhoto photo={PHOTOS.people} />
+      </div>
       <div className="mt-16 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
         {FIELD.map(({ icon: Icon, title, body }) => (
           <div key={title} className="flex flex-col gap-3">
-            <span className="flex size-10 items-center justify-center rounded-md bg-surface-container-lowest text-primary shadow-1 ring-1 ring-outline-variant/70 dark:bg-surface-container-high">
+            <span className="flex size-9 items-center justify-center rounded-md border border-outline-variant bg-surface-container-lowest text-on-surface dark:bg-surface-container">
               <Icon aria-hidden className="size-5" />
             </span>
             <h3 className="text-title-md font-semibold text-on-surface">{title}</h3>
@@ -299,7 +332,7 @@ function Pilot() {
   return (
     <Section id="pilot">
       <SectionHeader
-        kicker="The pilot"
+        n="05" kicker="The pilot"
         title="One organisation. About ten water points. Real faults."
         body={`We are looking for one partner in ${site.regions}. The first weeks measure how long repairs take today, so there is a baseline. We won't quote results before it exists.`}
       />
@@ -372,9 +405,9 @@ const FAQ = [
 
 function Faq() {
   return (
-    <Section id="faq" className="bg-surface-container-low">
+    <Section id="faq">
       <div className="grid gap-12 lg:grid-cols-[1fr_1.5fr]">
-        <SectionHeader kicker="FAQ" title="Questions partners ask." />
+        <SectionHeader n="06" kicker="FAQ" title="Questions partners ask." />
         <div className="flex flex-col divide-y divide-outline-variant border-y border-outline-variant">
           {FAQ.map((f) => (
             <details key={f.q} className="group py-5 [&_summary::-webkit-details-marker]:hidden">
@@ -399,7 +432,7 @@ function Apply() {
       <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:gap-16">
         <div className="flex flex-col gap-6">
           <SectionHeader
-            kicker="Become a pilot partner"
+            n="07" kicker="Become a pilot partner"
             title={`Manage water points in ${site.regions}?`}
             body="Tell us about your organisation and how faults are handled today. We read every enquiry and reply by email."
           />

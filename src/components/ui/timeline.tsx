@@ -2,7 +2,7 @@ import { ArrowRight, CloudUpload } from "lucide-react";
 import type { ReactNode } from "react";
 import type { FaultStatus } from "@/lib/fault-status";
 import { cn } from "@/lib/cn";
-import { StatusPill } from "./status-pill";
+import { StatusDot } from "./status-pill";
 
 export interface TimelineEvent {
   actor: string;
@@ -30,7 +30,7 @@ export function Avatar({ name, className }: { name: string; className?: string }
     <span
       aria-hidden
       className={cn(
-        "flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-container-highest text-label-md font-semibold text-on-surface",
+        "flex size-7 shrink-0 items-center justify-center rounded-full bg-surface-container-high text-[11px] font-semibold text-on-surface ring-4 ring-surface-container-lowest dark:ring-surface-container-low",
         className,
       )}
     >
@@ -46,7 +46,7 @@ export function Avatar({ name, className }: { name: string; className?: string }
 export function TimelineItem({ event, last }: { event: TimelineEvent; last?: boolean }) {
   return (
     <li className="relative flex gap-3 pb-5">
-      {!last && <span aria-hidden className="absolute top-9 bottom-0 left-4 w-px bg-outline-variant" />}
+      {!last && <span aria-hidden className="absolute top-8 bottom-0 left-3.5 w-px bg-outline-variant" />}
       <Avatar name={event.actor} />
       <div className={cn("flex min-w-0 flex-1 flex-col gap-1.5", event.superseded && "opacity-60")}>
         <p className="text-body-md text-on-surface">
@@ -55,14 +55,14 @@ export function TimelineItem({ event, last }: { event: TimelineEvent; last?: boo
           {event.superseded && <span className="ml-1.5 text-label-md text-on-surface-variant">· superseded</span>}
         </p>
         {(event.from || event.to) && (
-          <div className="flex flex-wrap items-center gap-1.5">
-            {event.from && <StatusPill status={event.from} size="sm" className="opacity-70" />}
-            {event.from && event.to && <ArrowRight aria-label="to" className="size-3.5 text-on-surface-variant" />}
-            {event.to && <StatusPill status={event.to} size="sm" />}
+          <div className="flex flex-wrap items-center gap-2">
+            {event.from && <StatusDot status={event.from} className="text-label-md text-on-surface-variant" />}
+            {event.from && event.to && <ArrowRight aria-label="to" className="size-3 text-on-surface-variant" />}
+            {event.to && <StatusDot status={event.to} className="text-label-md font-medium" />}
           </div>
         )}
         {event.note && (
-          <p className="rounded-sm bg-surface-container px-3 py-2 text-body-md text-on-surface">{event.note}</p>
+          <p className="border-l-2 border-outline-variant py-0.5 pl-3 text-body-md text-on-surface-variant">{event.note}</p>
         )}
         <Timestamps eventTime={event.eventTime} syncedAt={event.syncedAt} />
       </div>
@@ -72,17 +72,17 @@ export function TimelineItem({ event, last }: { event: TimelineEvent; last?: boo
 
 export function Timestamps({ eventTime, syncedAt }: { eventTime: string; syncedAt?: string }) {
   return (
-    <p className="flex flex-wrap gap-x-3 gap-y-0.5 text-body-sm text-on-surface-variant">
+    <p className="flex flex-wrap gap-x-3 gap-y-0.5 font-mono text-[11.5px] text-on-surface-variant">
       <span>
-        <span className="font-medium">Happened</span> {eventTime}
+        <span className="opacity-70">happened</span> {eventTime}
       </span>
       {syncedAt ? (
         <span>
-          <span className="font-medium">Synced</span> {syncedAt}
+          <span className="opacity-70">synced</span> {syncedAt}
         </span>
       ) : (
-        <span className="inline-flex items-center gap-1 font-medium text-on-secondary-container">
-          <CloudUpload aria-hidden className="size-3.5" /> Not synced yet
+        <span className="inline-flex items-center gap-1 text-secondary">
+          <CloudUpload aria-hidden className="size-3.5" /> not synced yet
         </span>
       )}
     </p>

@@ -37,8 +37,8 @@ export function StatusPill({
     <span
       title={def.description}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border font-medium whitespace-nowrap",
-        size === "sm" ? "h-6 px-2 text-label-md" : "h-7 px-2.5 text-label-lg",
+        "inline-flex items-center gap-1.5 rounded-sm border font-medium whitespace-nowrap",
+        size === "sm" ? "h-6 px-1.5 text-label-md" : "h-7 px-2 text-label-lg",
         closed ?? "border-outline-variant bg-surface-container-lowest text-on-surface",
         className,
       )}
@@ -73,8 +73,31 @@ export function Chip({
   className?: string;
 }) {
   return (
-    <span className={cn("inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-label-md font-medium", chipTone[tone], className)}>
+    <span className={cn("inline-flex h-6 items-center gap-1 rounded-sm px-2 text-label-md font-medium", chipTone[tone], className)}>
       {children}
+    </span>
+  );
+}
+
+const dotTone: Record<StatusTone, string> = {
+  primary: "bg-primary",
+  attention: "bg-secondary",
+  tertiary: "bg-tertiary",
+  neutral: "bg-outline",
+  success: "bg-success",
+  error: "bg-error",
+};
+
+/**
+ * Dense status for list rows: a coloured dot and the label. Quieter than a pill,
+ * so a long list reads as text, with colour only where the eye needs it.
+ */
+export function StatusDot({ status, className }: { status: FaultStatus; className?: string }) {
+  const def = FAULT_STATUS[status];
+  return (
+    <span title={def.description} className={cn("inline-flex items-center gap-2 text-label-lg whitespace-nowrap text-on-surface", className)}>
+      <span aria-hidden className={cn("size-2 shrink-0 rounded-full", dotTone[def.tone])} />
+      {def.label}
     </span>
   );
 }
@@ -83,7 +106,7 @@ export function CountBadge({ count, className }: { count: number; className?: st
   return (
     <span
       className={cn(
-        "inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-surface-container-high px-1.5 text-label-sm font-semibold text-on-surface-variant tabular-nums",
+        "inline-flex h-5 min-w-5 items-center justify-center rounded-xs bg-surface-container-high px-1 font-mono text-[11px] leading-none font-medium text-on-surface-variant tabular-nums",
         className,
       )}
     >

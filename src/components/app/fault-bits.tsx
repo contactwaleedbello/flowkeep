@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, CloudUpload } from "lucide-react";
+import { CloudUpload } from "lucide-react";
 import { FAULT_STATUS, WAITING_ON_LABEL, WAITING_ON_ORDER } from "@/lib/fault-status";
 import { cn } from "@/lib/cn";
 import {
-  ago,
   currentEstimate,
   enteredStatusAt,
   fmtDateTime,
@@ -22,7 +21,7 @@ import type { DemoState, Fault, FaultEvent } from "@/lib/demo/types";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/feedback";
 import type { StepState } from "@/components/ui/lifecycle";
-import { CountBadge, StatusPill } from "@/components/ui/status-pill";
+import { StatusDot } from "@/components/ui/status-pill";
 import type { TimelineEvent } from "@/components/ui/timeline";
 
 export const ROLE_LABEL: Record<string, string> = {
@@ -141,44 +140,44 @@ function hasPending(f: Fault) {
   return f.events.some((e) => !e.syncedAt);
 }
 
-/** One row in a fault list. */
+/** Compact age, e.g. "3d", "today". */
+function age(iso: string, now: number) {
+  const d = Math.max(0, Math.floor((now - new Date(iso).getTime()) / 86_400_000));
+  return d === 0 ? "today" : `${d}d`;
+}
+
+/** One row in a fault list: dense, scannable, colour only on the status dot. */
 export function FaultListRow({ state, fault, href }: { state: DemoState; fault: Fault; href: string }) {
   const { now } = useDemo();
   const wp = wpById(state, fault.waterPointId);
   const est = currentEstimate(fault);
+  const waited = age(enteredStatusAt(fault), now);
   return (
     <li>
-      <Link href={href} className="group flex items-center gap-4 px-4 py-3.5 transition-colors hover:bg-surface-container-low">
-        <span className="hidden w-14 shrink-0 font-mono text-body-sm text-on-surface-variant sm:block">{fault.number}</span>
-        <div className="flex min-w-0 flex-1 flex-col gap-1 sm:gap-0.5">
-          <span className="truncate text-body-md font-semibold text-on-surface">
-            <span className="mr-2 font-mono text-body-sm font-normal text-on-surface-variant sm:hidden">{fault.number}</span>
-            {wp?.name}
+      <Link
+        href={href}
+        className="group grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 px-4 py-3 transition-colors hover:bg-surface-container-low sm:grid-cols-[56px_1fr_190px_96px_56px] sm:py-2.5"
+      >
+        <span className="hidden font-mono text-[12px] text-on-surface-variant sm:block">{fault.number}</span>
+        <span className="min-w-0">
+          <span className="block truncate text-label-lg font-medium text-on-surface">{wp?.name}</span>
+          <span className="block truncate text-body-sm text-on-surface-variant">
+            <span className="font-mono sm:hidden">{fault.number} · </span>
+            {label(state.faultTypes, fault.faultType)} · {wp?.community}
           </span>
-          <span className="truncate text-body-sm text-on-surface-variant">
-            {label(state.faultTypes, fault.faultType)}
-            {est && ` · ${fmtMoney(est.diagnosis?.amount)}`}
-          </span>
-          <span className="flex flex-wrap items-center gap-2 pt-1 sm:hidden">
-            <StatusPill status={fault.status} size="sm" />
-          </span>
-        </div>
-        <div className="hidden shrink-0 flex-col items-end gap-1 sm:flex">
-          <StatusPill status={fault.status} size="sm" />
-          <span className="text-body-sm text-on-surface-variant">{ago(enteredStatusAt(fault), now)} in this state</span>
-        </div>
-        {hasPending(fault) ? (
-          <CloudUpload aria-label="Sync pending" className="size-4 shrink-0 text-on-surface-variant" />
-        ) : (
-          <span className="size-4 shrink-0" />
-        )}
-        <ChevronRight aria-hidden className="size-4 shrink-0 text-on-surface-variant transition-transform group-hover:translate-x-0.5" />
+        </span>
+        <StatusDot status={fault.status} className="col-start-1 row-start-2 sm:col-start-auto sm:row-start-auto" />
+        <span className="hidden text-right text-label-lg text-on-surface num sm:block">{est ? fmtMoney(est.diagnosis?.amount) : <span className="text-on-surface-variant">—</span>}</span>
+        <span className="col-start-2 row-span-2 row-start-1 flex items-center justify-end gap-2 font-mono text-[12px] text-on-surface-variant sm:col-start-auto sm:row-span-1 sm:row-start-auto">
+          {hasPending(fault) && <CloudUpload aria-label="Sync pending" className="size-3.5 text-secondary" />}
+          <span title="Time in this state">{waited}</span>
+        </span>
       </Link>
     </li>
   );
 }
 
-/** Open faults grouped by who acts next. */
+/** Open faults grouped by who acts next, in one list with sticky group rows. */
 export function GroupedFaults({ state, faults, hrefFor }: { state: DemoState; faults: Fault[]; hrefFor: (f: Fault) => string }) {
   if (!faults.length)
     return (
@@ -187,26 +186,32 @@ export function GroupedFaults({ state, faults, hrefFor }: { state: DemoState; fa
       </Card>
     );
   return (
-    <div className="flex flex-col gap-6">
+    <Card className="overflow-clip">
+      <div className="hidden grid-cols-[56px_1fr_190px_96px_56px] gap-x-4 border-b border-outline-variant/70 px-4 py-2 font-mono text-[11px] tracking-wide text-on-surface-variant uppercase sm:grid">
+        <span>ID</span>
+        <span>Water point</span>
+        <span>Status</span>
+        <span className="text-right">Estimate</span>
+        <span className="text-right">Age</span>
+      </div>
       {WAITING_ON_ORDER.map((g) => {
         const rows = faults.filter((f) => waitingOn(f) === g).sort((a, b) => enteredStatusAt(a).localeCompare(enteredStatusAt(b)));
         if (!rows.length) return null;
         return (
-          <section key={g} className="flex flex-col gap-2">
-            <h2 className="flex items-center gap-2 px-1 text-label-lg font-semibold text-on-surface-variant">
-              {WAITING_ON_LABEL[g]} <CountBadge count={rows.length} />
+          <section key={g}>
+            <h2 className="sticky top-14 z-10 flex items-center gap-2 border-b border-outline-variant/60 bg-surface-container-low/95 px-4 py-1.5 text-label-md font-semibold text-on-surface backdrop-blur dark:bg-surface-container/95">
+              {WAITING_ON_LABEL[g]}
+              <span className="font-mono text-[11px] font-normal text-on-surface-variant">{rows.length}</span>
             </h2>
-            <Card className="overflow-hidden">
-              <ul className="divide-y divide-outline-variant/70">
-                {rows.map((f) => (
-                  <FaultListRow key={f.id} state={state} fault={f} href={hrefFor(f)} />
-                ))}
-              </ul>
-            </Card>
+            <ul className="divide-y divide-outline-variant/50">
+              {rows.map((f) => (
+                <FaultListRow key={f.id} state={state} fault={f} href={hrefFor(f)} />
+              ))}
+            </ul>
           </section>
         );
       })}
-    </div>
+    </Card>
   );
 }
 

@@ -1,15 +1,31 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Geist_Mono, Inter, Inter_Tight } from "next/font/google";
 import "./globals.css";
 
 /*
- * Inter (variable, with optical sizing): one family for product and marketing.
+ * Inter (variable, with optical sizing): body text in product and marketing.
  * latin-ext covers Hausa (ɓ ɗ ƙ ƴ), Fulfulde and Yoruba diacritics.
  */
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin", "latin-ext"],
   axes: ["opsz"],
+  display: "swap",
+});
+
+/* Headings. Same skeleton as Inter, tighter fit; also covers the Hausa letters. */
+const interTight = Inter_Tight({
+  variable: "--font-inter-tight",
+  subsets: ["latin", "latin-ext"],
+  weight: ["500", "600", "700"],
+  display: "swap",
+});
+
+/* IDs, timestamps and figures. ASCII only, so Hausa coverage is not needed. */
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -24,8 +40,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fcfaf6" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: "#fafaf9" },
+    { media: "(prefers-color-scheme: dark)", color: "#0d1317" },
   ],
 };
 
@@ -34,7 +50,7 @@ const themeScript = `(function(){try{var t=localStorage.getItem('flowkeep-theme'
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} h-full`}>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${interTight.variable} ${geistMono.variable} h-full`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

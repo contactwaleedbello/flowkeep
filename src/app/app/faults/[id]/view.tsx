@@ -65,12 +65,14 @@ export function FaultRecordView({ params }: { params: Promise<{ id: string }> })
     <DesktopShell role="officer">
       <PageHeader
         back={{ href: "/app/officer", label: "Open faults" }}
+        eyebrow={`${f.number} · ${wp?.externalId} · ${wp?.state}`}
         title={wp?.name ?? "Fault"}
         sub={
           <span className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <span className="font-mono">{f.number}</span>
-            <span>{wp?.community}, {wp?.lga}</span>
             <StatusPill status={f.status} size="sm" />
+            <span>
+              {label(state.faultTypes, f.faultType)} · {wp?.community}, {wp?.lga}
+            </span>
           </span>
         }
         actions={
@@ -96,9 +98,9 @@ export function FaultRecordView({ params }: { params: Promise<{ id: string }> })
         </Banner>
       )}
 
-      <Card className="mb-6 px-2 py-5 sm:px-6">
+      <Card className="mb-6 px-2 pt-6 pb-5 sm:px-8">
         <LifecycleStepper current={currentStep(f)} reopened={reopenedCount(f)} />
-        <p className="mt-4 text-center text-body-sm text-on-surface-variant">{FAULT_STATUS[f.status].description}</p>
+        <p className="mt-5 border-t border-outline-variant/60 pt-4 text-center text-body-sm text-on-surface-variant">{FAULT_STATUS[f.status].description}</p>
       </Card>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">

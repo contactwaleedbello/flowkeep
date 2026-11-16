@@ -1,15 +1,24 @@
 import { cn } from "@/lib/cn";
 
-/** Flowkeep mark: a droplet held inside a record bracket. */
+/**
+ * Flowkeep mark: a droplet with a water line, the level being kept.
+ * Drawn in role colours on an inverse tile, so it inverts cleanly in dark mode.
+ */
 export function LogoMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" aria-hidden className={cn("size-8", className)}>
-      <rect width="32" height="32" rx="9" fill="var(--md-primary)" />
+      <rect width="32" height="32" rx="8" fill="var(--md-inverse-surface)" />
       <path
-        d="M16 6.5c-3.4 4.3-6.5 8.2-6.5 11.7a6.5 6.5 0 0 0 13 0c0-3.5-3.1-7.4-6.5-11.7Z"
-        fill="var(--md-on-primary)"
+        d="M9.6 18.6 Q12.8 16.9 16 18.6 T22.4 18.6 A6.5 6.5 0 0 1 9.6 18.6 Z"
+        fill="var(--md-inverse-primary)"
       />
-      <path d="M13 18.6l2.2 2.2 4-4.3" fill="none" stroke="var(--md-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M16 6.2c-3.5 4.4-6.5 8.1-6.5 12a6.5 6.5 0 0 0 13 0c0-3.9-3-7.6-6.5-12Z"
+        fill="none"
+        stroke="var(--md-inverse-on-surface)"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -17,8 +26,8 @@ export function LogoMark({ className }: { className?: string }) {
 export function Logo({ className }: { className?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
-      <LogoMark />
-      <span className="text-title-lg font-semibold tracking-tight text-on-surface">Flowkeep</span>
+      <LogoMark className="size-7" />
+      <span className="font-display text-[1.125rem] leading-none font-semibold tracking-[-0.03em] text-on-surface">Flowkeep</span>
     </span>
   );
 }

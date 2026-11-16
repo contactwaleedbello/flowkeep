@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, Search } from "lucide-react";
 import { DesktopShell, PageHeader } from "@/components/app/chrome";
 import { GroupedFaults } from "@/components/app/fault-bits";
@@ -10,8 +10,15 @@ import { downloadCsv, faultsCsv } from "@/lib/demo/csv";
 import { useDemo } from "@/lib/demo/store";
 
 export default function OfficerHome() {
-  const { state } = useDemo();
+  const { state, trackOfficerListOpen } = useDemo();
   const [q, setQ] = useState("");
+  // PRD §14 risk 2: record that the list was opened (shown to the admin as a usage signal).
+  const tracked = useRef(false);
+  useEffect(() => {
+    if (tracked.current) return;
+    tracked.current = true;
+    trackOfficerListOpen();
+  }, [trackOfficerListOpen]);
   const [region, setRegion] = useState<"all" | "Adamawa" | "Kaduna">("all");
 
   const open = useMemo(() => {

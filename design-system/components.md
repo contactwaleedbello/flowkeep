@@ -25,6 +25,25 @@ All components live in `src/components/ui/`. Each references colour roles only. 
 | `FieldPhoto`, `PumpIllustration` | `marketing/field-photo.tsx` | `photo`, `aspect` | Marketing photography with a credit line, falling back to a line drawing | n/a |
 | `ThemeToggle` | `theme-toggle.tsx` | n/a | Switches the `.dark` class and saves the choice | n/a |
 
+## Admin components (`src/components/app/admin-ui.tsx`)
+
+| Component | Use it for | Reference |
+|---|---|---|
+| `StatStrip` | A row of figures above a table. Each figure is a filter (`aria-pressed`); an amber dot marks one that needs action. | [n8n](https://mobbin.com/screens/0da64661-4929-44d2-97a9-103a140c21ae), [Time2book](https://mobbin.com/screens/20f17798-e888-4f07-b3b5-ae220760d13c) |
+| `Sheet` | A right-hand side panel for adding or editing in place. A native `<dialog>` that slides in. | [Twenty](https://mobbin.com/screens/86a114d8-1a8e-4795-a639-c8dda8ee916a) |
+| `CellSelect` | Inline table pickers (assignment, role). Reads as text until hovered or focused. A native `<select>`. | [Jira](https://mobbin.com/screens/8ee03824-8a10-4a60-bdf1-727c0e9ecbb1), [Coda](https://mobbin.com/screens/86c1609a-d899-449c-b941-1dc1cea10ffe) |
+| `HBars` | Single-series horizontal bars (median days per step), with a value and n on each row, a hover tooltip, and a screen-reader table | [Plain](https://mobbin.com/screens/72526f03-b98d-4df9-8c99-27e59a321ccc) |
+| `ColumnBars` | Single-series bars over time (events per week), with a hover tooltip and a screen-reader table | [Grok](https://mobbin.com/screens/359bc6c1-d2fd-45ed-871f-e37f4305ce7b) |
+| `Meter` | A share as a percentage plus "x of n", with a thin bar | [Vanta](https://mobbin.com/screens/26569a72-16c2-43a9-b1f9-984acc978658) |
+| `InviteDialog`, `ConsentDialog` (`admin-dialogs.tsx`) | Invite with role help and water points in one form; record consent with its purpose | [Dub](https://mobbin.com/screens/b810f603-540c-4891-a0f2-9358d8714a58), [Emergent](https://mobbin.com/screens/7705fc6b-efdd-4784-bbc8-d07d743ea2c1) |
+
+Chart rules (from the dataviz skill):
+- Every chart is a single series in one hue (`primary`), so it needs no legend: the title names it.
+- Marks are thin, with 4px rounded ends.
+- Values use text colours, never the series colour.
+- Each mark has a hover tooltip.
+- Each chart has a screen-reader table behind it.
+
 ## Server and client
 
 `ChoiceList`, `QueueTabs`, `TextField`/`TextArea`/`SelectField` and `ThemeToggle` are client components. Everything else renders on the server. Don't pass functions such as `onSync` from a Server Component; on server-rendered previews use `showSyncButton`.

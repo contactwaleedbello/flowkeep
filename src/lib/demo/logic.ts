@@ -30,7 +30,7 @@ export function canTransition(from: FaultStatus, to: FaultStatus) {
   return TRANSITIONS[from].includes(to);
 }
 
-export const isOpen = (f: Fault) => OPEN.includes(f.status);
+export const isOpen = (f: Fault) => !f.mergedInto && OPEN.includes(f.status);
 export const awaitingConfirmation = (f: Fault) => REPAIR_REPORTED.includes(f.status);
 export const waitingOn = (f: Fault): WaitingOn => FAULT_STATUS[f.status].waitingOn;
 

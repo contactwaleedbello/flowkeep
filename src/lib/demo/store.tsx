@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { FaultStatus } from "@/lib/fault-status";
 import { canTransition, faultById } from "./logic";
 import { createSeed } from "./seed";
-import type { DemoState, Fault, FaultEvent, User, WaterPoint } from "./types";
+import type { Assignment, DemoState, Fault, FaultEvent, User, WaterPoint } from "./types";
 
 /**
  * Front-end demo store. No backend: state lives in React and is saved to localStorage.
@@ -12,7 +12,7 @@ import type { DemoState, Fault, FaultEvent, User, WaterPoint } from "./types";
  * syncedAt until "Sync now" runs.
  */
 
-const KEY = "flowkeep-demo-v1";
+const KEY = "flowkeep-demo-v2";
 
 type Toast = { id: number; title: string; meta?: string } | null;
 
@@ -29,8 +29,15 @@ interface Actions {
   escalate(faultId: string, actorId: string, note: string): void;
   reassign(faultId: string, actorId: string, roleOnFault: "technician" | "custodian", toId: string): void;
   revealPhone(viewerId: string, subjectId: string, waterPointId: string): void;
-  addWaterPoint(wp: Omit<WaterPoint, "id">): void;
-  inviteUser(u: Pick<User, "name" | "role" | "phone">): void;
+  addWaterPoint(wp: Omit<WaterPoint, "id">): WaterPoint;
+  updateWaterPoint(id: string, patch: Partial<Omit<WaterPoint, "id" | "externalId">>, reason?: string): void;
+  setArchived(id: string, archived: boolean, reason?: string): void;
+  setAssignment(waterPointId: string, roleOnPoint: "custodian" | "technician", userId: string | null): void;
+  inviteUser(u: Pick<User, "name" | "role" | "phone">, assign?: { waterPointIds: string[] }): User;
+  setRole(userId: string, role: User["role"]): void;
+  setUserStatus(userId: string, status: User["status"], reason?: string): void;
+  mergeFaults(keepId: string, mergeId: string, actorId: string): void;
+  trackOfficerListOpen(): void;
   recordConsent(userId: string, purpose: string): void;
   setOnline(online: boolean): void;
   syncNow(): void;
@@ -51,6 +58,7 @@ const DEMO_NOW = new Date("2026-11-16T09:00:00+01:00").getTime();
 const DemoContext = createContext<Ctx | null>(null);
 
 const nowIso = () => new Date().toISOString();
+const ADMIN = "u-yakubu";
 let seq = 0;
 const uid = (p: string) => `${p}-${Date.now().toString(36)}${(seq++).toString(36)}`;
 
@@ -61,6 +69,8 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   const [now, setNow] = useState(DEMO_NOW);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const stateRef = useRef(state);
+  const readyRef = useRef(false);
+  const pendingOpens = useRef<string[]>([]);
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
@@ -72,9 +82,15 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       if (raw) {
         const parsed = JSON.parse(raw) as DemoState;
         // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration from storage
-        if (parsed.version === 1) setState(parsed);
+        if (parsed.version === 2) setState(parsed);
       }
     } catch {}
+    readyRef.current = true;
+    if (pendingOpens.current.length) {
+      const queued = pendingOpens.current;
+      pendingOpens.current = [];
+      setState((s) => ({ ...s, officerListOpens: [...s.officerListOpens, ...queued].slice(-200) }));
+    }
     setReady(true);
     setNow(Date.now());
     const tick = setInterval(() => setNow(Date.now()), 60_000);
@@ -204,12 +220,132 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         }));
       },
       addWaterPoint(wp) {
-        setState((s) => ({ ...s, waterPoints: [...s.waterPoints, { ...wp, id: uid("wp") }] }));
-        notify("Water point added");
+        const created: WaterPoint = { ...wp, id: uid("wp") };
+        setState((s) => ({ ...s, waterPoints: [...s.waterPoints, created] }));
+        notify("Water point added", created.externalId);
+        return created;
       },
-      inviteUser(u) {
-        setState((s) => ({ ...s, users: [...s.users, { ...u, id: uid("u"), status: "invited" }] }));
+      updateWaterPoint(id, patch, reason) {
+        setState((s) => {
+          const wp = s.waterPoints.find((w) => w.id === id);
+          if (!wp) return s;
+          const at = nowIso();
+          const changes = (Object.keys(patch) as Array<keyof typeof patch>).filter((k) => String(patch[k] ?? "") !== String(wp[k] ?? ""));
+          if (!changes.length) return s;
+          const corr = changes.map((k) => ({
+            id: uid("c"),
+            entityType: "water_point" as const,
+            entityId: id,
+            fieldName: String(k),
+            previousValue: String(wp[k] ?? ""),
+            newValue: String(patch[k] ?? ""),
+            reason: reason || "Updated by admin",
+            correctedById: ADMIN,
+            correctedAt: at,
+          }));
+          return { ...s, waterPoints: s.waterPoints.map((w) => (w.id === id ? { ...w, ...patch } : w)), corrections: [...corr, ...s.corrections] };
+        });
+        notify("Water point saved", "Changes are in the activity log");
+      },
+      setArchived(id, archived, reason) {
+        setState((s) => ({
+          ...s,
+          waterPoints: s.waterPoints.map((w) => (w.id === id ? { ...w, archived } : w)),
+          corrections: [
+            { id: uid("c"), entityType: "water_point", entityId: id, fieldName: "archived", previousValue: String(!archived), newValue: String(archived), reason: reason || (archived ? "Archived by admin" : "Restored by admin"), correctedById: ADMIN, correctedAt: nowIso() },
+            ...s.corrections,
+          ],
+        }));
+        notify(archived ? "Water point archived" : "Water point restored", "Its fault history is kept");
+      },
+      setAssignment(waterPointId, roleOnPoint, userId) {
+        setState((s) => {
+          const prev = s.assignments.find((a) => a.waterPointId === waterPointId && a.roleOnPoint === roleOnPoint);
+          if ((prev?.userId ?? null) === userId) return s;
+          const name = (id?: string) => s.users.find((u) => u.id === id)?.name ?? "Not assigned";
+          const rest = s.assignments.filter((a) => !(a.waterPointId === waterPointId && a.roleOnPoint === roleOnPoint));
+          return {
+            ...s,
+            assignments: userId ? [...rest, { waterPointId, userId, roleOnPoint }] : rest,
+            corrections: [
+              { id: uid("c"), entityType: "assignment", entityId: waterPointId, fieldName: roleOnPoint, previousValue: name(prev?.userId), newValue: name(userId ?? undefined), reason: "Assignment changed by admin", correctedById: ADMIN, correctedAt: nowIso() },
+              ...s.corrections,
+            ],
+          };
+        });
+        notify(roleOnPoint === "custodian" ? "Custodian assigned" : "Technician assigned", "Open faults keep their current people");
+      },
+      inviteUser(u, assign) {
+        const created: User = { ...u, id: uid("u"), status: "invited" };
+        setState((s) => {
+          const role: Assignment["roleOnPoint"] = u.role === "technician" ? "technician" : u.role === "assisting_user" ? "assisting_user" : "custodian";
+          const ids = assign?.waterPointIds ?? [];
+          // custodian and technician are one per water point: replace; assisting users add
+          const assignments =
+            role === "assisting_user"
+              ? [...s.assignments, ...ids.map((w) => ({ waterPointId: w, userId: created.id, roleOnPoint: role }))]
+              : [...s.assignments.filter((a) => !(ids.includes(a.waterPointId) && a.roleOnPoint === role)), ...ids.map((w) => ({ waterPointId: w, userId: created.id, roleOnPoint: role }))];
+          return { ...s, users: [...s.users, created], assignments: ["custodian", "technician", "assisting_user"].includes(u.role) ? assignments : s.assignments };
+        });
         notify("Invitation recorded", "No message is sent in the demo");
+        return created;
+      },
+      setRole(userId, role) {
+        setState((s) => {
+          const u = s.users.find((x) => x.id === userId);
+          if (!u || u.role === role) return s;
+          return {
+            ...s,
+            users: s.users.map((x) => (x.id === userId ? { ...x, role } : x)),
+            corrections: [{ id: uid("c"), entityType: "user", entityId: userId, fieldName: "role", previousValue: u.role, newValue: role, reason: "Role changed by admin", correctedById: ADMIN, correctedAt: nowIso() }, ...s.corrections],
+          };
+        });
+        notify("Role updated");
+      },
+      setUserStatus(userId, status, reason) {
+        setState((s) => {
+          const u = s.users.find((x) => x.id === userId);
+          if (!u || u.status === status) return s;
+          return {
+            ...s,
+            users: s.users.map((x) => (x.id === userId ? { ...x, status } : x)),
+            corrections: [{ id: uid("c"), entityType: "user", entityId: userId, fieldName: "status", previousValue: u.status, newValue: status, reason: reason || "Changed by admin", correctedById: ADMIN, correctedAt: nowIso() }, ...s.corrections],
+          };
+        });
+        notify(status === "deactivated" ? "Person deactivated" : "Person reactivated", "Their past records stay");
+      },
+      mergeFaults(keepId, mergeId, actorId) {
+        setState((s) => {
+          const keep = faultById(s, keepId);
+          const drop = faultById(s, mergeId);
+          if (!keep || !drop) return s;
+          const t = nowIso();
+          const reporters = Array.from(new Set([...(keep.extraReporterIds ?? []), drop.assistedById ?? drop.custodianId, ...(drop.extraReporterIds ?? [])]));
+          const kept: Fault = {
+            ...keep,
+            extraReporterIds: reporters,
+            events: [...keep.events, { id: uid("e"), kind: "merged", actorId, eventTime: t, syncedAt: s.online ? t : undefined, note: `${drop.number} merged into this fault. Its reporters are listed on this record.` }],
+          };
+          const merged: Fault = {
+            ...drop,
+            mergedInto: keepId,
+            events: [...drop.events, { id: uid("e"), kind: "merged", actorId, eventTime: t, syncedAt: s.online ? t : undefined, note: `Merged into ${keep.number}.` }],
+          };
+          return {
+            ...s,
+            faults: s.faults.map((f) => (f.id === keepId ? kept : f.id === mergeId ? merged : f)),
+            corrections: [{ id: uid("c"), entityType: "fault", entityId: mergeId, fieldName: "merged_into", previousValue: "", newValue: keep.number, reason: "Duplicate report of the same fault", correctedById: actorId, correctedAt: t }, ...s.corrections],
+          };
+        });
+        notify("Duplicates merged", "The earlier report date is kept");
+      },
+      trackOfficerListOpen() {
+        // Child effects run before the provider has loaded saved data; queue until then.
+        if (!readyRef.current) {
+          pendingOpens.current.push(nowIso());
+          return;
+        }
+        setState((s) => ({ ...s, officerListOpens: [...s.officerListOpens, nowIso()].slice(-200) }));
       },
       recordConsent(userId, purpose) {
         setState((s) => ({ ...s, users: s.users.map((u) => (u.id === userId ? { ...u, phoneConsentAt: nowIso(), phoneConsentPurpose: purpose } : u)) }));

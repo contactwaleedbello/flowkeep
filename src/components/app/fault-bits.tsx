@@ -60,6 +60,8 @@ export function describe(state: DemoState, f: Fault, e: FaultEvent): string {
       return "asked the technician for a revised estimate";
     case "escalated":
       return "escalated the fault";
+    case "merged":
+      return "merged a duplicate report";
   }
 }
 

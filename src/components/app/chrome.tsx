@@ -14,7 +14,9 @@ import {
   Plus,
   RefreshCw,
   RotateCcw,
-  Settings,
+  History,
+  LayoutGrid,
+  Users,
   Wrench,
   X,
   type LucideIcon,
@@ -193,7 +195,12 @@ export function DesktopShell({ role, children }: { role: "officer" | "approver" 
         ]
       : role === "approver"
         ? [{ href: "/app/approver", label: "Estimates", icon: Inbox, count: open.filter((f) => ["estimate_submitted", "funding_approved"].includes(f.status)).length }]
-        : [{ href: "/app/admin", label: "Admin", icon: Settings }];
+        : [
+            { href: "/app/admin", label: "Overview", icon: LayoutGrid },
+            { href: "/app/admin/water-points", label: "Water points", icon: Droplet, count: state.waterPoints.filter((w) => !w.archived).length },
+            { href: "/app/admin/people", label: "People", icon: Users, count: state.users.filter((u) => u.status !== "deactivated").length },
+            { href: "/app/admin/activity", label: "Activity", icon: History },
+          ];
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -209,7 +216,8 @@ export function DesktopShell({ role, children }: { role: "officer" | "approver" 
           </div>
           <nav aria-label="Main" className="flex flex-col gap-0.5 p-2">
             {nav.map(({ href, label, icon: Icon, count }) => {
-              const active = path === href || (href !== "/app/officer" && path.startsWith(href)) || (href === "/app/officer" && path.startsWith("/app/faults"));
+              const exact = href === "/app/officer" || href === "/app/admin";
+              const active = path === href || (!exact && path.startsWith(href)) || (href === "/app/officer" && path.startsWith("/app/faults"));
               return (
                 <Link
                   key={href}

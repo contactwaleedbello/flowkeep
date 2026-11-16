@@ -175,6 +175,23 @@ const faults: Fault[] = [
       }),
     ],
   },
+  {
+    // Likely duplicate of F-031: same water point, reported a day later by the assisting user.
+    id: "f-034",
+    number: "F-034",
+    waterPointId: "wp-07",
+    faultType: "no_water",
+    note: "Musa called the committee: pump gives no water.",
+    status: "reported",
+    custodianId: "u-musa",
+    assistedById: "u-zainab",
+    technicianId: "u-sani",
+    eventTime: t("2026-11-06T09:30"),
+    syncedAt: later(t("2026-11-06T09:30"), 40),
+    events: [
+      ev("reported", "u-zainab", "2026-11-06T09:30", undefined, "reported", { note: "Musa called the committee: pump gives no water.", syncMinutes: 40 }),
+    ],
+  },
   /* ---- closed history ---- */
   {
     id: "f-021",
@@ -270,7 +287,7 @@ const faults: Fault[] = [
 
 export function createSeed(): DemoState {
   return {
-    version: 1,
+    version: 2,
     organisation: { id: "org-1", name: "Sample WASH partner (demo)" },
     users: [
       { id: "u-fatima", name: "Fatima Abubakar", role: "programme_officer", phone: "0803 000 1101", status: "active" },
@@ -317,6 +334,17 @@ export function createSeed(): DemoState {
     faults,
     corrections: [
       {
+        id: "c-2",
+        entityType: "assignment",
+        entityId: "wp-08",
+        fieldName: "custodian",
+        previousValue: "Not assigned",
+        newValue: "Esther Danladi",
+        reason: "New custodian chosen by the WASH committee.",
+        correctedById: "u-yakubu",
+        correctedAt: t("2026-11-02T12:15"),
+      },
+      {
         id: "c-1",
         entityType: "funding_decision",
         entityId: "f-027",
@@ -329,7 +357,9 @@ export function createSeed(): DemoState {
       },
     ],
     phoneAccessLog: [
+      { id: "p-2", viewerId: "u-sani", subjectId: "u-amina", waterPointId: "wp-02", purpose: "Fault follow-up", accessedAt: t("2026-11-13T15:02") },
       { id: "p-1", viewerId: "u-fatima", subjectId: "u-musa", waterPointId: "wp-07", purpose: "Fault follow-up", accessedAt: t("2026-11-13T11:00") },
+      { id: "p-0", viewerId: "u-ibrahim", subjectId: "u-usman", waterPointId: "wp-04", purpose: "Fault follow-up", accessedAt: t("2026-11-03T10:40") },
     ],
     faultTypes: [
       { value: "no_water", label: "No water comes out" },
@@ -351,6 +381,7 @@ export function createSeed(): DemoState {
     ],
     online: true,
     lastSyncAt: t("2026-11-15T09:00"),
-    nextFaultNumber: 34,
+    nextFaultNumber: 35,
+    officerListOpens: ["2026-11-10T08:12", "2026-11-11T09:40", "2026-11-12T08:05", "2026-11-13T16:20", "2026-11-14T08:31"].map((x) => `${x}:00+01:00`),
   };
 }

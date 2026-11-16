@@ -245,3 +245,14 @@ dialog[open]::backdrop {
     opacity: 0;
   }
 }
+
+/* Side sheet (native <dialog>) slides in from the right. */
+dialog.fk-sheet[open] {
+  animation: fk-sheet 220ms var(--ease-emphasized);
+}
+@keyframes fk-sheet {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+}

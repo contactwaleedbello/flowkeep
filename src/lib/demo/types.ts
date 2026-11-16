@@ -47,7 +47,8 @@ export type FaultEventKind =
   | "abandoned"
   | "reassigned"
   | "revision_requested"
-  | "escalated";
+  | "escalated"
+  | "merged";
 
 export interface FaultEvent {
   id: string;
@@ -84,11 +85,15 @@ export interface Fault {
   eventTime: string;
   syncedAt?: string;
   events: FaultEvent[];
+  /** Set when this fault was merged into another (PRD §12). The record is kept, never deleted. */
+  mergedInto?: string;
+  /** Additional reporters carried over by a merge (fault_reporters). */
+  extraReporterIds?: string[];
 }
 
 export interface Correction {
   id: string;
-  entityType: "fault" | "funding_decision" | "water_point" | "user";
+  entityType: "fault" | "funding_decision" | "water_point" | "user" | "assignment";
   entityId: string;
   fieldName: string;
   previousValue: string;
@@ -113,7 +118,7 @@ export interface Option {
 }
 
 export interface DemoState {
-  version: 1;
+  version: 2;
   organisation: { id: string; name: string };
   users: User[];
   waterPoints: WaterPoint[];
@@ -126,4 +131,6 @@ export interface DemoState {
   online: boolean;
   lastSyncAt?: string;
   nextFaultNumber: number;
+  /** Usage signal for PRD §14 risk 2: when the officer's open faults list was opened. */
+  officerListOpens: string[];
 }

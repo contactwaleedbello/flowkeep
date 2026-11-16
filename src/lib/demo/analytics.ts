@@ -77,7 +77,7 @@ export function opensLast7Days(s: DemoState, now: number) {
   return { thisWeek: t.filter((x) => x >= since).length, lastWeek: t.filter((x) => x >= prevSince && x < since).length };
 }
 
-/** Two open faults at the same water point reported within 72 hours: probably the same fault. */
+/** Two open faults at the same water point reported within the duplicate window (Settings, default 72 h). */
 export function possibleDuplicates(s: DemoState) {
   const open = s.faults.filter(isOpen);
   const pairs: Array<{ keep: Fault; merge: Fault }> = [];
@@ -86,7 +86,7 @@ export function possibleDuplicates(s: DemoState) {
       const a = open[i];
       const b = open[j];
       if (a.waterPointId !== b.waterPointId) continue;
-      if (Math.abs(new Date(a.eventTime).getTime() - new Date(b.eventTime).getTime()) > 3 * DAY) continue;
+      if (Math.abs(new Date(a.eventTime).getTime() - new Date(b.eventTime).getTime()) > s.settings.duplicateWindowHours * 3_600_000) continue;
       const [keep, merge] = a.eventTime <= b.eventTime ? [a, b] : [b, a];
       pairs.push({ keep, merge });
     }

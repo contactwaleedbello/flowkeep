@@ -1,5 +1,5 @@
 import type { FaultStatus } from "@/lib/fault-status";
-import type { DemoState, Fault, FaultEvent } from "./types";
+import { DEFAULT_SETTINGS, type DemoState, type Fault, type FaultEvent } from "./types";
 
 /**
  * DEMO SEED. Fictional people, places and amounts for the front-end prototype.
@@ -382,6 +382,7 @@ export function createSeed(): DemoState {
     online: true,
     lastSyncAt: t("2026-11-15T09:00"),
     nextFaultNumber: 35,
+    settings: { ...DEFAULT_SETTINGS },
     officerListOpens: ["2026-11-10T08:12", "2026-11-11T09:40", "2026-11-12T08:05", "2026-11-13T16:20", "2026-11-14T08:31"].map((x) => `${x}:00+01:00`),
   };
 }

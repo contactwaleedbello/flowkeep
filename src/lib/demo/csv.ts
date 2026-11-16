@@ -1,5 +1,5 @@
 import { FAULT_STATUS } from "@/lib/fault-status";
-import { currentEstimate, label, latestOf, signals, userById, wpById } from "./logic";
+import { currentEstimate, custodianOf, label, latestOf, signals, technicianOf, userById, wpById } from "./logic";
 import type { DemoState, Fault } from "./types";
 
 /** CSV export (PRD §6 story 15, §12). Runs in the browser; nothing is uploaded. */
@@ -75,4 +75,27 @@ export function downloadCsv(filename: string, csv: string) {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+const row = (r: unknown[]) => r.map(esc).join(",");
+
+export function waterPointsCsv(state: DemoState) {
+  const head = ["water_point_id", "name", "kind", "community", "lga", "state", "latitude", "longitude", "sensor_point", "custodian", "technician", "faults", "archived"];
+  const body = state.waterPoints.map((w) => [
+    w.externalId, w.name, w.kind, w.community, w.lga, w.state, w.latitude, w.longitude, w.installationReference,
+    custodianOf(state, w.id)?.name, technicianOf(state, w.id)?.name,
+    state.faults.filter((f) => f.waterPointId === w.id && !f.mergedInto).length, w.archived ? "yes" : "no",
+  ]);
+  return [head, ...body].map(row).join("\n");
+}
+
+/** People without phone numbers: numbers are personal data and leave only through the app. */
+export function peopleCsv(state: DemoState) {
+  const head = ["name", "role", "status", "water_points", "phone_consent_recorded"];
+  const body = state.users.map((u) => [
+    u.name, u.role, u.status,
+    state.assignments.filter((a) => a.userId === u.id).map((a) => wpById(state, a.waterPointId)?.externalId).join(" "),
+    u.phoneConsentAt ? "yes" : u.phone ? "no" : "",
+  ]);
+  return [head, ...body].map(row).join("\n");
 }

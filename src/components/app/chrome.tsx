@@ -15,6 +15,7 @@ import {
   RefreshCw,
   RotateCcw,
   History,
+  Settings,
   LayoutGrid,
   Users,
   Wrench,
@@ -107,7 +108,7 @@ function useSync() {
   const { state, now, syncNow } = useDemo();
   const { count, oldest } = pendingSync(state);
   const days = oldest ? daysSince(oldest, now) : 0;
-  const kind = !state.online ? "offline" : count ? (days >= 10 ? "stale" : "pending") : "synced";
+  const kind = !state.online ? "offline" : count ? (days >= state.settings.syncWarnDays ? "stale" : "pending") : "synced";
   return { kind, count, days, lastSyncAt: state.lastSyncAt, syncNow, online: state.online };
 }
 
@@ -200,6 +201,7 @@ export function DesktopShell({ role, children }: { role: "officer" | "approver" 
             { href: "/app/admin/water-points", label: "Water points", icon: Droplet, count: state.waterPoints.filter((w) => !w.archived).length },
             { href: "/app/admin/people", label: "People", icon: Users, count: state.users.filter((u) => u.status !== "deactivated").length },
             { href: "/app/admin/activity", label: "Activity", icon: History },
+            { href: "/app/admin/settings", label: "Settings", icon: Settings },
           ];
 
   return (
@@ -251,7 +253,7 @@ export function DesktopShell({ role, children }: { role: "officer" | "approver" 
             <Link href="/app" className="md:hidden" aria-label="All roles">
               <LogoMark className="size-6" />
             </Link>
-            <nav className="flex gap-1 overflow-x-auto md:hidden">
+            <nav className="flex min-w-0 flex-1 gap-1 overflow-x-auto md:hidden">
               {nav.map(({ href, label }) => (
                 <Link key={href} href={href} className={cn("rounded-md px-2.5 py-1 text-label-lg whitespace-nowrap", path.startsWith(href) ? "bg-surface-container-high text-on-surface" : "text-on-surface-variant")}>
                   {label}

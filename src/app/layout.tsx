@@ -45,8 +45,11 @@ export const viewport: Viewport = {
   ],
 };
 
-/* Sets the theme class before first paint, so there is no flash (see Next docs: preventing-flash-before-hydration). */
-const themeScript = `(function(){try{var t=localStorage.getItem('flowkeep-theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d)}catch(e){}})()`;
+/*
+ * Applies device preferences before first paint, so there is no flash
+ * (see Next docs: preventing-flash-before-hydration). Mirrors src/lib/preferences.ts.
+ */
+const themeScript = `(function(){try{var d=document.documentElement,t=localStorage.getItem('flowkeep-theme')||'system';var dark=t==='dark'||(t==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);d.classList.toggle('dark',dark);if(localStorage.getItem('flowkeep-text')==='large')d.style.fontSize='112.5%';if(localStorage.getItem('flowkeep-motion')==='reduce')d.dataset.motion='reduce'}catch(e){}})()`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

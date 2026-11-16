@@ -121,7 +121,8 @@
 
 /* ---------- Layer 2: Material roles, light theme ---------- */
 
-:root {
+:root,
+.light {
   --md-primary: var(--teal-700);
   --md-on-primary: #FFFFFF;
   --md-primary-container: var(--teal-50);

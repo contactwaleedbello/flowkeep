@@ -93,7 +93,7 @@ export interface Fault {
 
 export interface Correction {
   id: string;
-  entityType: "fault" | "funding_decision" | "water_point" | "user" | "assignment";
+  entityType: "fault" | "funding_decision" | "water_point" | "user" | "assignment" | "setting";
   entityId: string;
   fieldName: string;
   previousValue: string;
@@ -115,7 +115,30 @@ export interface PhoneAccess {
 export interface Option {
   value: string;
   label: string;
+  /** Hidden from new reports. Kept so old records still read correctly. */
+  archived?: boolean;
 }
+
+/** Organisation settings an admin can change (Settings page). */
+export interface OrgSettings {
+  /** Days before the sync bar warns about old unsynced entries. The queue cap itself is 14 (PRD §9). */
+  syncWarnDays: number;
+  /** Window for flagging two reports at one water point as a possible duplicate. */
+  duplicateWindowHours: number;
+  /** Our recommendation; the PRD makes the rejection note optional. */
+  requireRejectReason: boolean;
+  defaultConsentPurpose: string;
+  /** Languages field users read. Planning input for translations (PRD Q6). */
+  languages: string[];
+}
+
+export const DEFAULT_SETTINGS: OrgSettings = {
+  syncWarnDays: 10,
+  duplicateWindowHours: 72,
+  requireRejectReason: true,
+  defaultConsentPurpose: "Fault follow-up",
+  languages: ["English", "Hausa"],
+};
 
 export interface DemoState {
   version: 2;
@@ -133,4 +156,5 @@ export interface DemoState {
   nextFaultNumber: number;
   /** Usage signal for PRD §14 risk 2: when the officer's open faults list was opened. */
   officerListOpens: string[];
+  settings: OrgSettings;
 }

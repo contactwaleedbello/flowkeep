@@ -2,20 +2,14 @@
 
 import { Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { isDarkNow, setPref } from "@/lib/preferences";
 
-/** Flips the `.dark` class defined by tokens.css and remembers the choice. */
+/** Quick switch between light and dark. Settings → Appearance also offers "System". */
 export function ThemeToggle({ className }: { className?: string }) {
-  function toggle() {
-    const dark = !document.documentElement.classList.contains("dark");
-    document.documentElement.classList.toggle("dark", dark);
-    try {
-      localStorage.setItem("flowkeep-theme", dark ? "dark" : "light");
-    } catch {}
-  }
   return (
     <button
       type="button"
-      onClick={toggle}
+      onClick={() => setPref("theme", isDarkNow() ? "light" : "dark")}
       aria-label="Switch light or dark theme"
       className={cn("state-layer flex size-10 items-center justify-center rounded-full text-on-surface-variant", className)}
     >

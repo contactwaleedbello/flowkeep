@@ -80,7 +80,7 @@ export function Detail({ params }: { params: Promise<{ id: string }> }) {
             <h2 className="text-title-md font-semibold text-on-surface">Diagnosis and estimate</h2>
             <SelectField label="What is broken?" required value={category} onChange={(e) => setCategory(e.target.value)}>
               <option value="" disabled>Choose a category</option>
-              {state.diagnosisCategories.map((c) => (
+              {state.diagnosisCategories.filter((c) => !c.archived).map((c) => (
                 <option key={c.value} value={c.value}>{c.label}</option>
               ))}
             </SelectField>

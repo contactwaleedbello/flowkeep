@@ -138,7 +138,7 @@ function InviteForm({
 export function ConsentDialog({ userId, onClose }: { userId: string | null; onClose: () => void }) {
   const { state, recordConsent } = useDemo();
   const u = state.users.find((x) => x.id === userId);
-  const [purpose, setPurpose] = useState("Fault follow-up");
+  const [purpose, setPurpose] = useState(state.settings.defaultConsentPurpose);
   return (
     <Dialog open={!!userId} onClose={onClose} title="Record phone consent">
       {u && (
@@ -155,8 +155,9 @@ export function ConsentDialog({ userId, onClose }: { userId: string | null; onCl
             below. Date and time are recorded now.
           </p>
           <SelectField label="Purpose" value={purpose} onChange={(e) => setPurpose(e.target.value)}>
-            <option>Fault follow-up</option>
-            <option>Fault follow-up and restoration checks</option>
+            {Array.from(new Set([state.settings.defaultConsentPurpose, "Fault follow-up", "Fault follow-up and restoration checks"])).map((p) => (
+              <option key={p}>{p}</option>
+            ))}
           </SelectField>
           <p className="text-body-sm text-on-surface-variant">Check the current Nigerian data protection rules before the pilot (PRD §16).</p>
           <div className="flex justify-end gap-2">

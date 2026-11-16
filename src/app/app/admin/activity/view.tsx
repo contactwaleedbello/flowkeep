@@ -34,7 +34,13 @@ const dayKey = new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Lagos" });
 
 function entries(s: DemoState): Entry[] {
   const subject = (type: string, id: string) =>
-    type === "user" ? userById(s, id)?.name : type === "water_point" || type === "assignment" ? wpById(s, id)?.externalId : s.faults.find((f) => f.id === id)?.number ?? id;
+    type === "setting"
+      ? "settings"
+      : type === "user"
+        ? userById(s, id)?.name
+        : type === "water_point" || type === "assignment"
+          ? wpById(s, id)?.externalId
+          : s.faults.find((f) => f.id === id)?.number ?? id;
   const fromCorrections: Entry[] = s.corrections.map((c) => {
     const merge = c.fieldName === "merged_into";
     return {

@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { FaultStatus } from "@/lib/fault-status";
 import { canTransition, faultById } from "./logic";
 import { createSeed } from "./seed";
-import type { Assignment, DemoState, Fault, FaultEvent, User, WaterPoint } from "./types";
+import { DEFAULT_SETTINGS, type Assignment, type DemoState, type Fault, type FaultEvent, type Option, type OrgSettings, type User, type WaterPoint } from "./types";
 
 /**
  * Front-end demo store. No backend: state lives in React and is saved to localStorage.
@@ -38,6 +38,10 @@ interface Actions {
   setUserStatus(userId: string, status: User["status"], reason?: string): void;
   mergeFaults(keepId: string, mergeId: string, actorId: string): void;
   trackOfficerListOpen(): void;
+  updateSettings(patch: Partial<OrgSettings>, label: string): void;
+  setOrgName(name: string): void;
+  renameUser(userId: string, name: string): void;
+  setOptions(list: "faultTypes" | "diagnosisCategories", options: Option[], change: string): void;
   recordConsent(userId: string, purpose: string): void;
   setOnline(online: boolean): void;
   syncNow(): void;
@@ -82,7 +86,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       if (raw) {
         const parsed = JSON.parse(raw) as DemoState;
         // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration from storage
-        if (parsed.version === 2) setState(parsed);
+        if (parsed.version === 2) setState({ ...parsed, settings: { ...DEFAULT_SETTINGS, ...parsed.settings } });
       }
     } catch {}
     readyRef.current = true;
@@ -338,6 +342,54 @@ export function DemoProvider({ children }: { children: ReactNode }) {
           };
         });
         notify("Duplicates merged", "The earlier report date is kept");
+      },
+      updateSettings(patch, label) {
+        setState((s) => {
+          const changed = (Object.keys(patch) as Array<keyof OrgSettings>).filter((k) => JSON.stringify(patch[k]) !== JSON.stringify(s.settings[k]));
+          if (!changed.length) return s;
+          const fmt = (v: unknown) => (Array.isArray(v) ? v.join(", ") : String(v));
+          return {
+            ...s,
+            settings: { ...s.settings, ...patch },
+            corrections: [
+              ...changed.map((k) => ({ id: uid("c"), entityType: "setting" as const, entityId: "org", fieldName: k, previousValue: fmt(s.settings[k]), newValue: fmt(patch[k]), reason: label, correctedById: ADMIN, correctedAt: nowIso() })),
+              ...s.corrections,
+            ],
+          };
+        });
+        notify("Saved", label);
+      },
+      setOrgName(name) {
+        setState((s) =>
+          name === s.organisation.name
+            ? s
+            : {
+                ...s,
+                organisation: { ...s.organisation, name },
+                corrections: [{ id: uid("c"), entityType: "setting", entityId: "org", fieldName: "organisation_name", previousValue: s.organisation.name, newValue: name, reason: "Organisation renamed", correctedById: ADMIN, correctedAt: nowIso() }, ...s.corrections],
+              },
+        );
+        notify("Saved", "Organisation name");
+      },
+      renameUser(userId, name) {
+        setState((s) => {
+          const u = s.users.find((x) => x.id === userId);
+          if (!u || u.name === name) return s;
+          return {
+            ...s,
+            users: s.users.map((x) => (x.id === userId ? { ...x, name } : x)),
+            corrections: [{ id: uid("c"), entityType: "user", entityId: userId, fieldName: "name", previousValue: u.name, newValue: name, reason: "Name updated in settings", correctedById: ADMIN, correctedAt: nowIso() }, ...s.corrections],
+          };
+        });
+        notify("Saved", "Your name");
+      },
+      setOptions(list, options, change) {
+        setState((s) => ({
+          ...s,
+          [list]: options,
+          corrections: [{ id: uid("c"), entityType: "setting", entityId: list, fieldName: list === "faultTypes" ? "fault_types" : "diagnosis_categories", previousValue: "", newValue: change, reason: "List updated in settings", correctedById: ADMIN, correctedAt: nowIso() }, ...s.corrections],
+        }));
+        notify("Saved", change);
       },
       trackOfficerListOpen() {
         // Child effects run before the provider has loaded saved data; queue until then.

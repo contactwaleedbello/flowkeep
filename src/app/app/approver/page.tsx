@@ -113,7 +113,7 @@ export default function ApproverHome() {
             open={dialog === "reject"}
             onClose={() => setDialog(null)}
             onSubmit={(reason) => {
-              demo.decide(selected.id, me, "rejected", reason, latestOf(selected, "decided")?.decision?.funderSource ?? FUNDERS[0]);
+              demo.decide(selected.id, me, "rejected", reason || undefined, latestOf(selected, "decided")?.decision?.funderSource ?? FUNDERS[0]);
               setDialog(null);
             }}
           />
@@ -257,20 +257,23 @@ function ApproveDialog({ open, onClose, onSubmit }: { open: boolean; onClose: ()
 }
 
 function RejectDialog({ open, onClose, onSubmit }: { open: boolean; onClose: () => void; onSubmit: (reason: string) => void }) {
+  const { state } = useDemo();
+  const required = state.settings.requireRejectReason;
   const [reason, setReason] = useState("");
   return (
     <Dialog open={open} onClose={onClose} title="Reject estimate">
       <form className="flex flex-col gap-4" onSubmit={(e) => (e.preventDefault(), onSubmit(reason.trim()))}>
         <TextArea
           label="Reason"
-          required
+          required={required}
+          optional={!required}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           helper="The programme officer uses this to resubmit, escalate or abandon. The fault stays open."
         />
         <div className="flex justify-end gap-2">
           <Button variant="text" onClick={onClose}>Cancel</Button>
-          <Button type="submit" variant="danger" disabled={!reason.trim()}>Reject</Button>
+          <Button type="submit" variant="danger" disabled={required && !reason.trim()}>Reject</Button>
         </div>
       </form>
     </Dialog>

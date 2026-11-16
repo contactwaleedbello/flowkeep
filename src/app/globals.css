@@ -256,3 +256,11 @@ dialog.fk-sheet[open] {
     opacity: 0;
   }
 }
+
+/* Reduced motion chosen in Settings → Appearance (in addition to the OS setting). */
+html[data-motion="reduce"] *,
+html[data-motion="reduce"] *::before,
+html[data-motion="reduce"] *::after {
+  transition-duration: 0.01ms !important;
+  animation-duration: 0.01ms !important;
+}

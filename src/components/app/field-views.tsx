@@ -165,7 +165,7 @@ export function ReportFlow({ role }: { role: FieldRole }) {
               The record will show both your name and the custodian&apos;s.
             </Banner>
           )}
-          <ChoiceList legend="Fault type" className="[&_legend]:sr-only" choices={state.faultTypes} value={type} onChange={setType} />
+          <ChoiceList legend="Fault type" className="[&_legend]:sr-only" choices={state.faultTypes.filter((o) => !o.archived)} value={type} onChange={setType} />
           <TextArea label="Anything else" optional value={note} onChange={(e) => setNote(e.target.value)} helper="Please don't include anyone's phone number." />
           <div className="mt-auto flex flex-col gap-2">
             <Button type="submit" size="lg" block disabled={!type}>

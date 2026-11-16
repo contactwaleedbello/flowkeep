@@ -21,6 +21,7 @@ Open it at **`/app`** and choose a role.
 | `/app/admin/water-points` | Admin | Desktop | Figures above the table act as filters. Custodian and technician are assigned **inline**, with "Invite someone new…" in the picker. Side panel to add, edit (with a reason) or archive. CSV export (§6 stories 16–17, §12) |
 | `/app/admin/people` | Admin | Desktop | Active / invited / missing consent / deactivated filters, role chips, inline role change, one-click consent, side panel with deactivate. Invite with role and water points in one form (§6 stories 18–19) |
 | `/app/admin/activity` | Admin | Desktop | One append-only log for corrections, phone number views and merges, filtered by chips, grouped by day, with events per week. CSV export (§12) |
+| `/app/admin/settings` | Admin | Desktop | **Profile** (name). **Appearance**, saved per device: light, dark or system theme with live previews, text size, reduced motion. **Organisation**: name, time zone and currency (fixed), languages field users read. **Fault lists**: add, rename, reorder, hide (if used) or delete fault types and diagnosis categories. **Field rules**: sync warning days, duplicate window, rejection reason rule. **Data and privacy**: phone visibility, default consent purpose, CSV exports, reset. |
 
 ## Rules the demo enforces
 
@@ -43,6 +44,20 @@ Open it at **`/app`** and choose a role.
 - **Deactivating** removes access and keeps every record. The person's side panel warns when open faults still name them.
 - **Signals, not statistics (§13).** Every time figure is a median with its n. Rates show "x of n".
 - **Officer list opens (§14 risk 2)** are counted each time the programme officer opens the open faults list.
+
+## Settings that change behaviour
+
+| Setting | Where it takes effect |
+|---|---|
+| Theme, text size, motion | The whole app on this device, applied before first paint (no flash) |
+| Fault types | Custodian and assisting-user report form. Hidden items stay readable on old records. |
+| Diagnosis categories | Technician diagnosis form |
+| Sync warning days | Sync bar on every screen turns to "stale" |
+| Duplicate window | Overview's possible-duplicate detection |
+| Require rejection reason | Approver's reject dialog |
+| Default consent purpose | Consent dialog |
+
+Every organisation-level change is written to Activity as a `setting.*` correction.
 
 ## Assumptions (to confirm with the PRD owner)
 

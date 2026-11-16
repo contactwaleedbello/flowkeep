@@ -1,26 +1,184 @@
 @import "tailwindcss";
+@import "../styles/tokens.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Dark theme follows the `.dark` class set on <html> (see tokens.css). */
+@custom-variant dark (&:where(.dark, .dark *));
 
+/* =========================================================
+   FLOWKEEP DESIGN TOKENS → TAILWIND
+   Only Layer 2 (Material roles) is exposed to components.
+   Palettes (Layer 1) are intentionally not mapped.
+   ========================================================= */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* ---- Colour roles ---- */
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  --color-primary: var(--md-primary);
+  --color-on-primary: var(--md-on-primary);
+  --color-primary-container: var(--md-primary-container);
+  --color-on-primary-container: var(--md-on-primary-container);
+
+  --color-secondary: var(--md-secondary);
+  --color-on-secondary: var(--md-on-secondary);
+  --color-secondary-container: var(--md-secondary-container);
+  --color-on-secondary-container: var(--md-on-secondary-container);
+
+  --color-tertiary: var(--md-tertiary);
+  --color-on-tertiary: var(--md-on-tertiary);
+  --color-tertiary-container: var(--md-tertiary-container);
+  --color-on-tertiary-container: var(--md-on-tertiary-container);
+
+  --color-error: var(--md-error);
+  --color-on-error: var(--md-on-error);
+  --color-error-container: var(--md-error-container);
+  --color-on-error-container: var(--md-on-error-container);
+
+  --color-success: var(--md-success);
+  --color-on-success: var(--md-on-success);
+  --color-success-container: var(--md-success-container);
+  --color-on-success-container: var(--md-on-success-container);
+
+  --color-surface: var(--md-surface);
+  --color-surface-dim: var(--md-surface-dim);
+  --color-surface-bright: var(--md-surface-bright);
+  --color-surface-container-lowest: var(--md-surface-container-lowest);
+  --color-surface-container-low: var(--md-surface-container-low);
+  --color-surface-container: var(--md-surface-container);
+  --color-surface-container-high: var(--md-surface-container-high);
+  --color-surface-container-highest: var(--md-surface-container-highest);
+  --color-on-surface: var(--md-on-surface);
+  --color-on-surface-variant: var(--md-on-surface-variant);
+  --color-surface-variant: var(--md-surface-variant);
+  --color-surface-tint: var(--md-surface-tint);
+
+  --color-outline: var(--md-outline);
+  --color-outline-variant: var(--md-outline-variant);
+
+  --color-inverse-surface: var(--md-inverse-surface);
+  --color-inverse-on-surface: var(--md-inverse-on-surface);
+  --color-inverse-primary: var(--md-inverse-primary);
+
+  /* ---- Typography ---- */
+  --font-sans: var(--font-noto-sans), ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-noto-serif-display), Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Material 3 type scale. Name = role-size. */
+  --text-display-lg: 3.5625rem;
+  --text-display-lg--line-height: 4rem;
+  --text-display-lg--letter-spacing: -0.016em;
+  --text-display-md: 2.8125rem;
+  --text-display-md--line-height: 3.25rem;
+  --text-display-md--letter-spacing: -0.01em;
+  --text-display-sm: 2.25rem;
+  --text-display-sm--line-height: 2.75rem;
+
+  --text-headline-lg: 2rem;
+  --text-headline-lg--line-height: 2.5rem;
+  --text-headline-md: 1.75rem;
+  --text-headline-md--line-height: 2.25rem;
+  --text-headline-sm: 1.5rem;
+  --text-headline-sm--line-height: 2rem;
+
+  --text-title-lg: 1.375rem;
+  --text-title-lg--line-height: 1.75rem;
+  --text-title-md: 1rem;
+  --text-title-md--line-height: 1.5rem;
+  --text-title-md--letter-spacing: 0.009em;
+  --text-title-sm: 0.875rem;
+  --text-title-sm--line-height: 1.25rem;
+  --text-title-sm--letter-spacing: 0.007em;
+
+  --text-body-lg: 1rem;
+  --text-body-lg--line-height: 1.5rem;
+  --text-body-md: 0.875rem;
+  --text-body-md--line-height: 1.25rem;
+  --text-body-sm: 0.75rem;
+  --text-body-sm--line-height: 1rem;
+
+  --text-label-lg: 0.875rem;
+  --text-label-lg--line-height: 1.25rem;
+  --text-label-lg--letter-spacing: 0.007em;
+  --text-label-md: 0.75rem;
+  --text-label-md--line-height: 1rem;
+  --text-label-md--letter-spacing: 0.04em;
+  --text-label-sm: 0.6875rem;
+  --text-label-sm--line-height: 1rem;
+  --text-label-sm--letter-spacing: 0.045em;
+
+  /* ---- Shape (Material 3 corner scale) ---- */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 28px;
+
+  /* ---- Elevation. Tonal surfaces carry most depth; shadows are subtle. ---- */
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.08), 0 1px 3px 1px rgb(0 0 0 / 0.04);
+  --shadow-2: 0 1px 2px rgb(0 0 0 / 0.08), 0 2px 6px 2px rgb(0 0 0 / 0.05);
+  --shadow-3: 0 4px 8px 3px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.1);
+
+  /* ---- Motion ---- */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--md-primary-container);
+    color: var(--md-on-primary-container);
+  }
+  :focus-visible {
+    outline: 2px solid var(--md-primary);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Material state layer: hover 8%, pressed 12%, drawn in the element's content colour. */
+@utility state-layer {
+  position: relative;
+  isolation: isolate;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 150ms var(--ease-standard);
+    z-index: -1;
+  }
+  &:hover::after {
+    opacity: 0.08;
+  }
+  &:active::after {
+    opacity: 0.12;
+  }
 }

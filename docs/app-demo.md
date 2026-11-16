@@ -9,10 +9,11 @@ Open it at **`/app`** and choose a role.
 | Route | Role | Shell | What it covers (PRD) |
 |---|---|---|---|
 | `/app` | n/a | n/a | Role chooser |
-| `/app/officer` | Programme officer | Desktop | Open faults grouped by who acts next, search, state filter, CSV export (§6 stories 11, 15; §14 risk 2) |
-| `/app/faults/[id]` | Programme officer | Desktop | Fault record: stepper, timeline, timestamps, details. Reassign, abandon with reason, act on rejected funding (ask for revision, escalate, abandon), show the custodian's phone number, which is logged (§6 stories 12–14, §7 feature 5, §10) |
-| `/app/water-points`, `/app/water-points/[id]` | Programme officer | Desktop | Portfolio and per-point fault history, including the display rules from §7 feature 5 and an empty state |
-| `/app/exports` | Programme officer | Desktop | CSV downloads built in the browser |
+| `/app/officer` | Programme officer | Desktop | **Open faults** (first screen, §14 risk 2). Figures on top act as filters: Open, Needs you, Slower than usual, Waiting on custodian, plus restored per week. **Needs you** lists rejected funding with Ask for revision, Escalate and Abandon on the row. Groups by who acts next (collapsible), "In this step" with a "usual" flag, a "⋯" menu per row (reassign, show phone, abandon), search and a Filter menu (state, LGA, fault type, technician). **Closed** tab: restored and abandoned faults with days to restore and money disbursed (§5, §6 stories 11, 12, 14, 15) |
+| `/app/faults/[id]` | Programme officer | Desktop | Fault record: "3 of 7" with up and down (or j and k) through the list you came from, one main action chosen by status, more in "⋯". Technician and custodian changed in place. Time in this step against the usual time. Stepper, timeline, both timestamps, phone number on request (logged) (§6 stories 12–14, §7 feature 5, §10) |
+| `/app/water-points`, `/app/water-points/[id]` | Programme officer | Desktop | Figures as filters (open fault, restored, none recorded) and money disbursed to date. Table sorted by days without water, with money spent. Record opens with faults, disbursed, days to restore and custodian answers, then the history under the §7 feature 5 display rules |
+| `/app/reports` | Programme officer | Desktop | Period (30 days, 90 days, pilot to date) and state or LGA. Faults reported, restored, days to restore, disbursed; median time between steps; confirmation rate, water points with a fault, complete records; disbursed per month; CSV exports beside the figures. `/app/exports` redirects here |
+| `/app/settings` | Programme officer | Desktop | Profile and Appearance (organisation settings stay with the admin) |
 | `/app/approver` | Approver | Desktop | Queues: To decide, To disburse, Decided and paid. Approve (funder source, optional note), reject (reason required), record disbursement (§7 feature 3) |
 | `/app/technician`, `/app/technician/faults/[id]` | Technician | Phone | Assigned faults grouped by what to do. Diagnosis and estimate form; repair outcome (complete, partial, failed, parts not available) (§7 features 2, 4) |
 | `/app/custodian`, `/report`, `/faults/[id]` | Custodian | Phone | Report in two steps; confirm whether water is flowing (§7 features 1, 4) |
@@ -35,6 +36,13 @@ Open it at **`/app`** and choose a role.
 - **Every view of a custodian's phone number is logged** (the officer's "Show phone number" and the technician's "Call" button) and appears in the admin phone access log.
 - **Two timestamps on every entry (§9).** Turn on **Offline** in the demo bar: new entries get no `synced_at`, the sync bar counts them, and records show "Not synced yet". Turn Offline off and press **Sync now**.
 - **Stale queue warning.** The sync bar warns once the oldest unsynced entry is 10 days old (the cap is 14 days).
+
+## Programme officer rules
+
+- **"Slower than usual" is the portfolio's own baseline, not a target (§13).** A fault is flagged when its time in the current step is at least 1.5 times the median for that step across past faults, and at least 2 days over it. With fewer than 3 past examples for a step, nothing is flagged and the record says there is not enough history yet.
+- **A revision request moves the fault back to the technician.** It leaves "Needs you" and appears under "Waiting on technician" until a new estimate arrives.
+- **Reassigning from the officer changes that fault only.** The water point's standing assignment belongs to the admin.
+- **Closed means restored (custodian confirmed) or abandoned (with a reason).** Days to restore run from the report to the custodian's confirmation.
 
 ## Admin rules the demo enforces
 

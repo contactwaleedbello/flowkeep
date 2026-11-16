@@ -5,10 +5,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowLeft,
+  BarChart3,
   ChevronsUpDown,
   CloudOff,
   Droplet,
-  FileSpreadsheet,
   Home,
   Inbox,
   Plus,
@@ -329,7 +329,7 @@ export function DesktopShell({ role, children }: { role: "officer" | "approver" 
       ? [
           { href: "/app/officer", label: "Open faults", icon: Inbox, count: open.length },
           { href: "/app/water-points", label: "Water points", icon: Droplet, count: state.waterPoints.filter((w) => !w.archived).length },
-          { href: "/app/exports", label: "Exports", icon: FileSpreadsheet },
+          { href: "/app/reports", label: "Reports", icon: BarChart3 },
         ]
       : role === "approver"
         ? [{ href: "/app/approver", label: "Estimates", icon: Inbox, count: open.filter((f) => ["estimate_submitted", "funding_approved"].includes(f.status)).length }]
@@ -339,7 +339,12 @@ export function DesktopShell({ role, children }: { role: "officer" | "approver" 
             { href: "/app/admin/people", label: "People", icon: Users, count: state.users.filter((u) => u.status !== "deactivated").length },
             { href: "/app/admin/activity", label: "Activity", icon: History },
           ];
-  const bottom: NavItem[] = role === "admin" ? [{ href: "/app/admin/settings", label: "Settings", icon: Settings }] : [];
+  const bottom: NavItem[] =
+    role === "admin"
+      ? [{ href: "/app/admin/settings", label: "Settings", icon: Settings }]
+      : role === "officer"
+        ? [{ href: "/app/settings", label: "Settings", icon: Settings }]
+        : [];
   const current = [...main, ...bottom].find((i) => isActive(path, i.href, i.match));
   const close = () => setDrawer(false);
   const links = (items: NavItem[]) => items.map((item) => <NavLink key={item.href} item={item} active={isActive(path, item.href, item.match)} onNavigate={close} />);

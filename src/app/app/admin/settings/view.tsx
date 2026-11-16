@@ -23,22 +23,28 @@ const SECTIONS = [
 ] as const;
 type Section = (typeof SECTIONS)[number]["key"];
 
-export function SettingsView() {
+/** Settings for the admin (every section) and the programme officer (Profile and Appearance). */
+export function SettingsView({ role = "admin" }: { role?: "admin" | "officer" }) {
   const router = useRouter();
   const params = useSearchParams();
-  const section = (SECTIONS.find((s) => s.key === params.get("section"))?.key ?? "profile") as Section;
-  const go = (k: Section) => router.replace(k === "profile" ? "/app/admin/settings" : `/app/admin/settings?section=${k}`, { scroll: false });
+  const sections = role === "admin" ? SECTIONS : SECTIONS.filter((s) => s.scope === "You");
+  const base = role === "admin" ? "/app/admin/settings" : "/app/settings";
+  const section = (sections.find((s) => s.key === params.get("section"))?.key ?? "profile") as Section;
+  const go = (k: Section) => router.replace(k === "profile" ? base : `${base}?section=${k}`, { scroll: false });
 
   return (
-    <DesktopShell role="admin">
-      <PageHeader title="Settings" sub="Changes save as you make them. Organisation changes are recorded in Activity." />
+    <DesktopShell role={role}>
+      <PageHeader
+        title="Settings"
+        sub={role === "admin" ? "Changes save as you make them. Organisation changes are recorded in Activity." : "Changes save as you make them. Organisation settings are managed by your admin."}
+      />
       <div className="grid gap-8 lg:grid-cols-[200px_minmax(0,1fr)]">
         {/* section nav: vertical on desktop, chips on small screens */}
         <nav aria-label="Settings sections" className="min-w-0 lg:sticky lg:top-20 lg:self-start">
           <ul className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
-            {SECTIONS.map((s, i) => (
+            {sections.map((s, i) => (
               <li key={s.key} className="shrink-0">
-                {(i === 0 || SECTIONS[i - 1].scope !== s.scope) && (
+                {(i === 0 || sections[i - 1].scope !== s.scope) && (
                   <p className={cn("hidden px-2.5 pb-1 font-mono text-[11px] tracking-wide text-on-surface-variant uppercase lg:block", i > 0 && "pt-4")}>{s.scope}</p>
                 )}
                 <button
@@ -58,7 +64,7 @@ export function SettingsView() {
         </nav>
 
         <div className="flex max-w-3xl min-w-0 flex-col gap-10">
-          {section === "profile" && <ProfileSection />}
+          {section === "profile" && <ProfileSection role={role} />}
           {section === "appearance" && <AppearanceSection />}
           {section === "organisation" && <OrganisationSection />}
           {section === "lists" && <ListsSection />}
@@ -205,9 +211,9 @@ function Fixed({ children }: { children: ReactNode }) {
 /* Profile                                                              */
 /* ------------------------------------------------------------------ */
 
-function ProfileSection() {
+function ProfileSection({ role }: { role: "admin" | "officer" }) {
   const { state, renameUser } = useDemo();
-  const me = state.users.find((u) => u.id === PERSONA.admin)!;
+  const me = state.users.find((u) => u.id === PERSONA[role])!;
   return (
     <Block title="Profile" description="How you appear in the record. Every change you make is signed with this name.">
       <Row label="Full name">
@@ -216,7 +222,7 @@ function ProfileSection() {
       <Row label="Role" description={ROLE_INFO[me.role].help}>
         <Fixed>{ROLE_INFO[me.role].label}</Fixed>
       </Row>
-      <Row label="Phone" description="Admins don't need a phone number in Flowkeep.">
+      <Row label="Phone" description={role === "admin" ? "Admins don't need a phone number in Flowkeep." : "Your admin manages phone numbers."}>
         <Fixed>{me.phone ?? "Not stored"}</Fixed>
       </Row>
     </Block>

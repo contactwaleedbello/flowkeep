@@ -19,8 +19,8 @@ export interface Stat {
 
 export function StatStrip({ items, active, onSelect, className }: { items: Stat[]; active?: string; onSelect?: (key: string) => void; className?: string }) {
   return (
-    <div className={cn("grid overflow-hidden rounded-lg border border-outline-variant/80 bg-surface-container-lowest dark:bg-surface-container-low", className)} style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
-      {items.map((s, i) => {
+    <div className={cn("grid gap-px overflow-hidden rounded-lg border border-outline-variant/80 bg-outline-variant/70", className)} style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
+      {items.map((s) => {
         const on = active === s.key;
         const Tag = onSelect ? "button" : "div";
         return (
@@ -28,10 +28,10 @@ export function StatStrip({ items, active, onSelect, className }: { items: Stat[
             key={s.key}
             {...(onSelect ? { type: "button" as const, onClick: () => onSelect(s.key), "aria-pressed": on } : {})}
             className={cn(
-              "relative flex min-w-0 flex-col gap-1 px-4 py-3.5 text-left transition-colors",
-              i > 0 && "border-l border-outline-variant/70",
-              onSelect && "hover:bg-surface-container-low",
-              on && "bg-surface-container-low after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-primary",
+              // hairline gaps instead of borders, so the dividers stay right when the strip wraps to 2 × 2
+              "relative flex min-w-0 flex-col gap-1 bg-surface-container-lowest px-4 py-3.5 text-left transition-colors dark:bg-surface-container-low",
+              onSelect && "hover:bg-surface-container-low dark:hover:bg-surface-container",
+              on && "bg-surface-container-low after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-primary dark:bg-surface-container",
             )}
           >
             <span className="flex items-center gap-1.5 truncate text-label-md text-on-surface-variant">

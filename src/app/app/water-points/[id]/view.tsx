@@ -15,7 +15,9 @@ import {
   wpById,
 } from "@/lib/demo/logic";
 import { downloadCsv, faultsCsv } from "@/lib/demo/csv";
+import { waterPointSummary } from "@/lib/demo/officer";
 import { useDemo } from "@/lib/demo/store";
+import { StatStrip, fmtDays } from "@/components/app/admin-ui";
 import type { Fault } from "@/lib/demo/types";
 import { DesktopShell, PageHeader } from "@/components/app/chrome";
 import { Button } from "@/components/ui/button";
@@ -37,6 +39,7 @@ export function WaterPointView({ params }: { params: Promise<{ id: string }> }) 
     );
 
   const faults = state.faults.filter((f) => f.waterPointId === wp.id).sort((a, b) => b.eventTime.localeCompare(a.eventTime));
+  const sum = waterPointSummary(state, wp.id);
 
   return (
     <DesktopShell role="officer">
@@ -54,6 +57,16 @@ export function WaterPointView({ params }: { params: Promise<{ id: string }> }) 
             Export CSV
           </Button>
         }
+      />
+      {/* Cost and outcome first (Jobber, AWS budgets), then the history (§6 story 13). */}
+      <StatStrip
+        className="mb-6 grid-cols-2! sm:grid-cols-4!"
+        items={[
+          { key: "faults", label: "Faults recorded", value: sum.faults.length, hint: sum.open ? "1 open now" : "None open" },
+          { key: "spent", label: "Disbursed", value: sum.spent ? fmtMoney(sum.spent) : "₦0", hint: "Money that moved" },
+          { key: "restore", label: "Days to restore", value: sum.medianRestore !== undefined ? fmtDays(sum.medianRestore) : "—", hint: sum.restoredN ? `median, from ${sum.restoredN} restored` : "None restored yet" },
+          { key: "confirmed", label: "Custodian answered", value: sum.confirmed.n ? `${sum.confirmed.x} of ${sum.confirmed.n}` : "—", hint: "after a repair" },
+        ]}
       />
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
         <section className="flex flex-col gap-3">

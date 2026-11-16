@@ -99,8 +99,8 @@ function Hero() {
           <ButtonLink href="/#apply" size="lg" trailingIcon={<ArrowRight aria-hidden className="size-4" />}>
             Become a pilot partner
           </ButtonLink>
-          <ButtonLink href="/#how" size="lg" variant="text">
-            See how it works
+          <ButtonLink href="/app" size="lg" variant="text">
+            Try the demo
           </ButtonLink>
         </div>
 

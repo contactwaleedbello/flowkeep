@@ -8,7 +8,9 @@ The repository currently contains:
 - **The design system** (`/design-system`, plus docs in [`design-system/`](design-system/README.md)), built on the Flowkeep colour tokens and the PRD.
 - **Research** ([`docs/research/`](docs/research/)): Mobbin references at the app, screen and component layers.
 
-The app itself (offline PWA, Supabase, Dexie) is the next phase.
+- **The app front end** (`/app`), a clickable demo of every role with sample data and no backend. See [docs/app-demo.md](docs/app-demo.md).
+
+The backend (Supabase), offline storage (Dexie) and PWA packaging are the next phase.
 
 ## Stack
 
@@ -32,11 +34,14 @@ src/
   app/globals.css             Tailwind theme: roles, type scale, shape, elevation, motion
   app/page.tsx                marketing site
   app/design-system/page.tsx  live design system reference
+  app/app/                    the app front end (demo), one route per role
+  components/app/             app shells, demo bar, dialogs, fault views
   components/ui/              component layer (primitives)
   components/patterns/        screen layer (compositions for each role)
   components/marketing/       marketing-only pieces (header, footer, pilot form)
   lib/fault-status.ts         the 11 fault states → tone, icon, "waiting on" group
-  lib/sample-data.ts          SAMPLE data for previews only
+  lib/sample-data.ts          SAMPLE data for marketing previews only
+  lib/demo/                   demo store: types, seed, lifecycle rules, CSV
 design-system/                design system docs
 docs/                         PRD and research
 scripts/contrast-audit.mjs

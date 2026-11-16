@@ -32,6 +32,8 @@ Programme officer, approver and admin.
   - **Phone:** a menu button in the header opens a drawer from the left with the same links. The header shows the current page name.
   - **Items:** icon, label and count. The active item has a neutral fill, a primary icon and a 2px primary bar on the left edge. Settings is pinned to the bottom, and the person sits in the footer.
   - **In the rail:** each label becomes a tooltip on hover and keyboard focus, so links keep their accessible names. The `rail:` Tailwind variant in `globals.css` drives this and is scoped to `.fk-aside`, so the drawer never collapses.
+  - **Field roles (`PhoneShell`)** use the same sidebar from 768px up: custodian and assisting user get Home and Report a fault; the technician gets My faults with a count. Content sits in one centred 600px column instead of a phone frame. On phones, custodians and assisting users keep the bottom bar so Report is one thumb-tap away; the technician has one page and no bar.
+  - The collapsed choice is one device setting, so it carries across roles.
   - Basis: [Deel](https://mobbin.com/screens/ebede796-0ca0-408a-bf05-630420732e1f), with the Linear collapse pattern.
 - A `SyncBar` above the content. On desktop it usually reads "All records synced".
 - **The first screen after login is the role's queue** (PRD §14 risk 2): open faults for officers, To decide for approvers.

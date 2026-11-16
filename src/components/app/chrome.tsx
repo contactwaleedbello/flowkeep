@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { setPref, usePrefs } from "@/lib/preferences";
-import { daysSince, fmtDateTime, pendingSync, userById } from "@/lib/demo/logic";
+import { daysSince, fmtDateTime, isOpen, pendingSync, userById } from "@/lib/demo/logic";
 import { PERSONA, useDemo } from "@/lib/demo/store";
 import { Toast } from "@/components/ui/feedback";
 import { LogoMark } from "@/components/ui/logo";
@@ -148,7 +148,7 @@ function PhoneSyncStrip() {
     <div
       role="status"
       className={cn(
-        "flex h-9 items-center gap-2 px-5 text-label-md",
+        "flex h-9 items-center gap-2 px-5 text-label-md md:rounded-md",
         s.kind === "offline" ? "bg-inverse-surface text-inverse-on-surface" : s.kind === "stale" ? "bg-error-container text-on-error-container" : "bg-secondary-container text-on-secondary-container",
       )}
     >
@@ -183,9 +183,10 @@ export function ToastHost() {
 /* Desktop shell: officer, approver, admin                              */
 /* ------------------------------------------------------------------ */
 
-type NavItem = { href: string; label: string; icon: LucideIcon; count?: number };
+type NavItem = { href: string; label: string; icon: LucideIcon; count?: number; match?: (path: string) => boolean };
 
-function isActive(path: string, href: string) {
+function isActive(path: string, href: string, match?: (path: string) => boolean) {
+  if (match) return match(path);
   if (href === "/app/officer") return path === href || path.startsWith("/app/faults");
   if (href === "/app/admin") return path === href;
   return path === href || path.startsWith(href + "/");
@@ -236,10 +237,90 @@ function Avatar({ name }: { name?: string }) {
   );
 }
 
-export function DesktopShell({ role, children }: { role: "officer" | "approver" | "admin"; children: ReactNode }) {
+function Brand({ org }: { org: string }) {
+  return (
+    <>
+      <LogoMark className="size-6 shrink-0" />
+      <div className="min-w-0 flex-1 rail:hidden">
+        <p className="truncate text-label-lg font-semibold text-on-surface">Flowkeep</p>
+        <p className="truncate text-[11px] leading-tight text-on-surface-variant">{org}</p>
+      </div>
+    </>
+  );
+}
+
+type Me = { name: string; role: string } | undefined;
+
+function Person({ me }: { me: Me }) {
+  return (
+    <div className="flex items-center gap-2.5 rail:justify-center">
+      <Avatar name={me?.name} />
+      <div className="min-w-0 rail:hidden">
+        <p className="truncate text-label-lg font-medium text-on-surface">{me?.name}</p>
+        <p className="truncate text-[11px] leading-tight text-on-surface-variant">{ROLE_LABEL[me?.role ?? ""]}</p>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The sidebar every shell shares. md and up: an icon rail on tablets; on large screens full
+ * or rail by the person's choice (Collapse button or the [ key), saved per device.
+ */
+function Sidebar({ main, bottom = [], me }: { main: NavItem[]; bottom?: NavItem[]; me: Me }) {
   const { state } = useDemo();
   const path = usePathname();
   const { sidebar } = usePrefs();
+  const collapsed = sidebar === "collapsed";
+
+  // "[" toggles the sidebar on large screens (Linear, Notion), unless typing.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement;
+      if (e.key !== "[" || e.metaKey || e.ctrlKey || e.altKey || t.closest("input, textarea, select, [contenteditable]")) return;
+      if (!matchMedia("(width >= 64rem)").matches) return;
+      setPref("sidebar", document.documentElement.dataset.sidebar === "collapsed" ? "expanded" : "collapsed");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const links = (items: NavItem[]) => items.map((item) => <NavLink key={item.href} item={item} active={isActive(path, item.href, item.match)} />);
+
+  return (
+    <aside
+      aria-label="Sidebar"
+      className="fk-aside sticky top-0 z-40 hidden h-screen w-60 shrink-0 flex-col border-r border-outline-variant/70 bg-surface-container-low transition-[width] duration-200 ease-[var(--ease-emphasized)] md:flex rail:w-[60px]"
+    >
+      <div className="flex h-14 items-center gap-2.5 px-4 rail:justify-center rail:px-0">
+        <Brand org={state.organisation.name} />
+      </div>
+      <nav aria-label="Main" className="flex flex-1 flex-col gap-0.5 px-3 pt-2 rail:items-center rail:px-0">
+        {links(main)}
+        {bottom.length > 0 && <div className="mt-auto flex flex-col gap-0.5 rail:items-center">{links(bottom)}</div>}
+      </nav>
+      <div className="flex flex-col gap-2 border-t border-outline-variant/60 p-3 rail:items-center rail:px-0">
+        <Person me={me} />
+        <button
+          type="button"
+          onClick={() => setPref("sidebar", collapsed ? "expanded" : "collapsed")}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!collapsed}
+          title={`${collapsed ? "Expand" : "Collapse"} sidebar  [`}
+          className="state-layer hidden h-8 items-center gap-2 rounded-md px-2 text-label-md text-on-surface-variant lg:flex rail:w-9 rail:justify-center rail:px-0"
+        >
+          {collapsed ? <PanelLeftOpen aria-hidden className="size-4" /> : <PanelLeftClose aria-hidden className="size-4" />}
+          <span className="flex-1 text-left rail:hidden">Collapse</span>
+          <kbd className="rounded-xs border border-outline-variant px-1 font-mono text-[10px] rail:hidden">[</kbd>
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+export function DesktopShell({ role, children }: { role: "officer" | "approver" | "admin"; children: ReactNode }) {
+  const { state } = useDemo();
+  const path = usePathname();
   const [drawer, setDrawer] = useState(false);
   const me = userById(state, PERSONA[role]);
   const open = state.faults.filter((f) => !["service_verified", "abandoned"].includes(f.status));
@@ -259,76 +340,15 @@ export function DesktopShell({ role, children }: { role: "officer" | "approver" 
             { href: "/app/admin/activity", label: "Activity", icon: History },
           ];
   const bottom: NavItem[] = role === "admin" ? [{ href: "/app/admin/settings", label: "Settings", icon: Settings }] : [];
-  const current = [...main, ...bottom].find((i) => isActive(path, i.href));
-  const collapsed = sidebar === "collapsed";
-  const toggle = () => setPref("sidebar", collapsed ? "expanded" : "collapsed");
-
-  // "[" toggles the sidebar on large screens (Linear, Notion), unless typing.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const t = e.target as HTMLElement;
-      if (e.key !== "[" || e.metaKey || e.ctrlKey || e.altKey || t.closest("input, textarea, select, [contenteditable]")) return;
-      if (!matchMedia("(width >= 64rem)").matches) return;
-      setPref("sidebar", document.documentElement.dataset.sidebar === "collapsed" ? "expanded" : "collapsed");
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
-  const brand = (
-    <>
-      <LogoMark className="size-6 shrink-0" />
-      <div className="min-w-0 flex-1 rail:hidden">
-        <p className="truncate text-label-lg font-semibold text-on-surface">Flowkeep</p>
-        <p className="truncate text-[11px] leading-tight text-on-surface-variant">{state.organisation.name}</p>
-      </div>
-    </>
-  );
-  const person = (
-    <div className="flex items-center gap-2.5 rail:justify-center">
-      <Avatar name={me?.name} />
-      <div className="min-w-0 rail:hidden">
-        <p className="truncate text-label-lg font-medium text-on-surface">{me?.name}</p>
-        <p className="truncate text-[11px] leading-tight text-on-surface-variant">{ROLE_LABEL[me?.role ?? ""]}</p>
-      </div>
-    </div>
-  );
-  const links = (items: NavItem[], onNavigate?: () => void) =>
-    items.map((item) => <NavLink key={item.href} item={item} active={isActive(path, item.href)} onNavigate={onNavigate} />);
+  const current = [...main, ...bottom].find((i) => isActive(path, i.href, i.match));
+  const close = () => setDrawer(false);
+  const links = (items: NavItem[]) => items.map((item) => <NavLink key={item.href} item={item} active={isActive(path, item.href, item.match)} onNavigate={close} />);
 
   return (
     <div className="flex min-h-screen flex-col">
       <DemoDock role={role} />
       <div className="flex flex-1">
-        {/* Sidebar: md and up. Icon rail on tablets; full or rail (person's choice) on large screens. */}
-        <aside
-          aria-label="Sidebar"
-          className="fk-aside sticky top-0 z-40 hidden h-screen w-60 shrink-0 flex-col border-r border-outline-variant/70 bg-surface-container-low transition-[width] duration-200 ease-[var(--ease-emphasized)] md:flex rail:w-[60px]"
-        >
-          <div className="flex h-14 items-center gap-2.5 px-4 rail:justify-center rail:px-0">
-            {brand}
-          </div>
-          <nav aria-label="Main" className="flex flex-1 flex-col gap-0.5 px-3 pt-2 rail:items-center rail:px-0">
-            {links(main)}
-            {bottom.length > 0 && <div className="mt-auto flex flex-col gap-0.5 rail:items-center">{links(bottom)}</div>}
-          </nav>
-          <div className="flex flex-col gap-2 border-t border-outline-variant/60 p-3 rail:items-center rail:px-0">
-            {person}
-            <button
-              type="button"
-              onClick={toggle}
-              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-              aria-expanded={!collapsed}
-              title={`${collapsed ? "Expand" : "Collapse"} sidebar  [`}
-              className="state-layer hidden h-8 items-center gap-2 rounded-md px-2 text-label-md text-on-surface-variant lg:flex rail:w-9 rail:justify-center rail:px-0"
-            >
-              {collapsed ? <PanelLeftOpen aria-hidden className="size-4" /> : <PanelLeftClose aria-hidden className="size-4" />}
-              <span className="flex-1 text-left rail:hidden">Collapse</span>
-              <kbd className="rounded-xs border border-outline-variant px-1 font-mono text-[10px] rail:hidden">[</kbd>
-            </button>
-          </div>
-        </aside>
-
+        <Sidebar main={main} bottom={bottom} me={me} />
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-10 z-30 flex h-14 items-center gap-2 border-b border-outline-variant/60 bg-surface/85 px-2 backdrop-blur-xl sm:top-0 sm:px-8 md:gap-3">
             <button
@@ -350,20 +370,20 @@ export function DesktopShell({ role, children }: { role: "officer" | "approver" 
       </div>
 
       {/* Phone drawer: the same links, full labels. Closes on navigation, Escape or a tap outside. */}
-      <Drawer open={drawer} onClose={() => setDrawer(false)}>
+      <Drawer open={drawer} onClose={close}>
         <div className="flex h-14 items-center gap-2.5 border-b border-outline-variant/60 pr-2 pl-4">
-          {brand}
-          <button type="button" onClick={() => setDrawer(false)} aria-label="Close menu" className="state-layer flex size-10 items-center justify-center rounded-md text-on-surface-variant">
+          <Brand org={state.organisation.name} />
+          <button type="button" onClick={close} aria-label="Close menu" className="state-layer flex size-10 items-center justify-center rounded-md text-on-surface-variant">
             <X aria-hidden className="size-5" />
           </button>
         </div>
         <nav aria-label="Main" className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-3 pt-3">
-          {links(main, () => setDrawer(false))}
-          {bottom.length > 0 && <div className="mt-auto flex flex-col gap-0.5">{links(bottom, () => setDrawer(false))}</div>}
+          {links(main)}
+          {bottom.length > 0 && <div className="mt-auto flex flex-col gap-0.5">{links(bottom)}</div>}
         </nav>
         <div className="flex flex-col gap-3 border-t border-outline-variant/60 p-3">
-          {person}
-          <Link href="/app" onClick={() => setDrawer(false)} className="text-label-md text-on-surface-variant underline-offset-2 hover:text-on-surface hover:underline">
+          <Person me={me} />
+          <Link href="/app" onClick={close} className="text-label-md text-on-surface-variant underline-offset-2 hover:text-on-surface hover:underline">
             Switch role
           </Link>
         </div>
@@ -451,47 +471,59 @@ export function PhoneShell({
   back?: string;
   children: ReactNode;
 }) {
+  const { state } = useDemo();
   const path = usePathname();
+  const me = userById(state, PERSONA[role]);
   const base = role === "technician" ? "/app/technician" : role === "assist" ? "/app/assist" : "/app/custodian";
-  const tabs =
+  const home = (p: string) => p === base || p.startsWith(`${base}/faults`);
+  const nav: NavItem[] =
     role === "technician"
-      ? []
+      ? [{ href: base, label: "My faults", icon: Wrench, match: home, count: state.faults.filter((f) => f.technicianId === me?.id && isOpen(f)).length }]
       : [
-          { href: base, label: "Home", icon: Home },
-          { href: `${base}/report`, label: "Report", icon: Plus },
+          { href: base, label: role === "assist" ? "Your reports" : "Home", icon: Home, match: home },
+          { href: `${base}/report`, label: "Report a fault", icon: Plus },
         ];
+  // Phones keep a bottom bar (one thumb-tap to Report). The technician has one page, so no bar.
+  const tabs = role === "technician" ? [] : [
+    { href: base, label: "Home", icon: Home, active: home(path) },
+    { href: `${base}/report`, label: "Report", icon: Plus, active: path.startsWith(`${base}/report`) },
+  ];
+
   return (
-    <div className="flex min-h-screen flex-col bg-surface sm:bg-surface-container-low">
+    <div className="flex min-h-screen flex-col bg-surface">
       <DemoDock role={role} />
-      <div className="mx-auto flex w-full max-w-[420px] flex-1 flex-col bg-surface sm:my-8 sm:mb-24 sm:min-h-[780px] sm:flex-none sm:overflow-hidden sm:rounded-[28px] sm:shadow-3 sm:ring-1 sm:ring-outline-variant/70">
-        <PhoneSyncStrip />
-        <header className="flex items-start gap-1 px-5 pt-5 pb-4">
-          {back ? (
-            <Link href={back} aria-label="Back" className="state-layer -ml-2.5 flex size-10 shrink-0 items-center justify-center rounded-full text-on-surface">
-              <ArrowLeft aria-hidden className="size-5" />
-            </Link>
-          ) : (
-            role === "technician" && <Wrench aria-hidden className="mt-1.5 mr-2 size-5 text-on-surface-variant" />
-          )}
-          <div className="min-w-0">
-            {sub && <p className="truncate text-body-sm text-on-surface-variant">{sub}</p>}
-            <h1 className="text-headline-sm font-semibold text-on-surface">{title}</h1>
-          </div>
-        </header>
-        <main className="flex flex-1 flex-col gap-4 px-5 pb-6">{children}</main>
-        {tabs.length > 1 && (
-          <nav className="sticky bottom-0 grid grid-cols-2 border-t border-outline-variant/70 bg-surface/95 backdrop-blur">
-            {tabs.map(({ href, label, icon: Icon }) => {
-              const active = href === base ? path === base || path.startsWith(`${base}/faults`) : path.startsWith(href);
-              return (
-                <Link key={href} href={href} className={cn("flex flex-col items-center gap-0.5 py-2.5 text-label-md", active ? "font-semibold text-on-surface" : "text-on-surface-variant")}>
-                  <Icon aria-hidden className="size-5" strokeWidth={active ? 2.25 : 1.75} />
-                  {label}
+      <div className="flex flex-1">
+        <Sidebar main={nav} me={me} />
+        <div className="flex min-w-0 flex-1 flex-col">
+          {/* One readable column: full width on phones, centred on larger screens. */}
+          <div className="mx-auto flex w-full max-w-[600px] flex-1 flex-col md:px-4 md:pt-6 md:pb-24">
+            <PhoneSyncStrip />
+            <header className="flex items-start gap-1 px-5 pt-5 pb-4">
+              {back ? (
+                <Link href={back} aria-label="Back" className="state-layer -ml-2.5 flex size-10 shrink-0 items-center justify-center rounded-full text-on-surface">
+                  <ArrowLeft aria-hidden className="size-5" />
                 </Link>
-              );
-            })}
-          </nav>
-        )}
+              ) : (
+                role === "technician" && <Wrench aria-hidden className="mt-1.5 mr-2 size-5 text-on-surface-variant md:hidden" />
+              )}
+              <div className="min-w-0">
+                {sub && <p className="truncate text-body-sm text-on-surface-variant">{sub}</p>}
+                <h1 className="text-headline-sm font-semibold text-on-surface">{title}</h1>
+              </div>
+            </header>
+            <main className="flex flex-1 flex-col gap-4 px-5 pb-6">{children}</main>
+            {tabs.length > 0 && (
+              <nav aria-label="Main" className="sticky bottom-0 grid grid-cols-2 border-t border-outline-variant/70 bg-surface/95 backdrop-blur md:hidden">
+                {tabs.map(({ href, label, icon: Icon, active }) => (
+                  <Link key={href} href={href} aria-current={active ? "page" : undefined} className={cn("flex flex-col items-center gap-0.5 py-2.5 text-label-md", active ? "font-semibold text-primary" : "text-on-surface-variant")}>
+                    <Icon aria-hidden className="size-5" strokeWidth={active ? 2.25 : 1.75} />
+                    {label}
+                  </Link>
+                ))}
+              </nav>
+            )}
+          </div>
+        </div>
       </div>
       <ToastHost />
     </div>
